@@ -1,0 +1,32 @@
+extends layout
+
+block content
+    nav
+        ul
+            a#gobackpc(onclick="window.close()")
+                li Back to commands
+
+    div#main-container.bg-contact2(style="background-image: /images/bg-01.jpg")
+        form#stocks.container(action="#")
+            div#teams
+                div#sandwich
+                    label(for="sandwich1") Sandwich 1
+                    input#sandwich1(list="user_list" type="text")
+
+                    label(for="sandwich2") Sandwich 2
+                    input#sandwich2(list="user_list" type="text")
+
+                    label(for="sandwich3") Sandwich 3
+                    input#sandwich3(list="user_list" type="text")
+                div#commis
+                    label(for="commi1") Commi 1
+                    input#commi1(list="user_list" type="text")
+
+                    label(for="commi2") Commi 2
+                    input#commi2(list="user_list" type="text")
+                div#okteam
+                    button.contact2-form-btn Accept
+                datalist#user_list
+
+    script(src="/socket.io/socket.io.js")
+    script(src="/javascripts/service.js")

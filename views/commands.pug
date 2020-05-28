@@ -1,0 +1,59 @@
+extends layout
+
+block content
+    nav
+        ul
+            a(href="/stock")
+                li Stock
+            a(href="/menu")
+                li Menu
+            a(href="/service" target="popup")
+                li Service
+            a(href="#popup")
+                li#logout Disconnect
+
+    div#popup
+        h1 Do you really want to log out ?
+        div.container-contact2-form-btn
+            div.wrap-contact2-form-btn
+                div.contact2-form-bgbtn
+                a(href="#")
+                    button.contact2-form-btn Cancel
+        div.container-contact2-form-btn
+            div.wrap-contact2-form-btn
+                div.contact2-form-bgbtn
+                a(href="/logout")
+                    button.contact2-form-btn Logout
+
+    div.bg-contact2#main-container(style="background-image: /images/bg-01.jpg;")
+        form.container(action="#")
+            div#dish
+                h1 Dish
+                ul
+            div#ingredient
+                h1 Ingredients
+                ul
+            div#sauce
+                h1 Sauce
+                ul
+            div#drink
+                h1 Drink
+                ul
+            div#dessert
+                h1 Dessert
+                ul
+            div#resume
+                h1 Command 1
+                p
+                p
+                p
+                p
+                p
+                input#user(list="user_list" type="text" placeholder="Username")
+                datalist#user_list
+                button.validation(type="submit") Confirm
+                h2 0€
+        div.list
+
+    script(src="/socket.io/socket.io.js")
+    script(src="/javascripts/commands.js")

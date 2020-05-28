@@ -1,0 +1,50 @@
+extends layout
+
+block content
+    div#main-container.bg-contact2(stype="background-image: /images/bg-01.jpg")
+        form#stocks.container(action="#")
+            div#dish
+                h1 Dishes
+                ul
+                    li
+                        input#sandwich(type="number" name="dish")
+                        label(for="sandwich") Sandwich
+                    li
+                        input#sandwichS(type="number" name="dish")
+                        label(for="sandwichS") Sandwich surprise
+            div#ingredient
+                h1 Ingredients
+                ul
+                    li
+                        input#dinde(type="number" name="ingredients")
+                        lable(for="dinde") Dinde
+                    li
+                        input#jambon(type="number" name="ingredients")
+                        label(for="jambon") Jambon
+            div#sauce
+                h1 Sauces
+                ul
+                    li
+                        input#beurre(type="number" name="sauce")
+                        label(for="beurre") Beurre
+                    li
+                        input#beurreS(type="number" name="sauce")
+                        label(for="beurreS") Beurre Salé
+            div#drink
+                h1 Drinks
+                ul
+                    li
+                        input#coca(type="number" name="drink")
+                        label(for="coca") Coca-Cola
+                    li
+                        input#icetea(type="number" name="drink")
+                        label(for="icetea") Ice-Tea
+            div#dessert
+                h1 Desserts
+                ul
+                    li
+                        input#beignetC(type="number" name="dessert")
+                        label(for="beignetC") Beignet Chocolat
+                    li
+                        input#beignetF(type="number" name="dessert")
+                        label(for="beignetF") Beignet Framboise

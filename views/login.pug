@@ -1,0 +1,31 @@
+extends layout
+
+block content
+    div.bg-contact2(style="background-image: /images/bg-01.jpg")
+        div.container-contact2
+            div.wrap-contact2
+                span.contact2-form-title Login
+
+                p Kfet member:
+                form(action="" method="post" novalidate)
+                    div.wrap-input2.validate-input(data-validate="Username is required")
+                        input.input2(type="text" name="name")
+                        span.focus-input2(data-placeholder="Username")
+
+                    div.wrap-input2.validate-input(data-validate="Password required")
+                        input.input2(type="password" name="password")
+                        span.focus-input2(data-placeholder="Password")
+
+                    div#fct
+                        input#commi(type="radio" name="dct")
+                        label(for="commi") Commi
+
+                        input#pc(type="radio" name="fct")
+                        label(for="pc") PC
+
+                        input#guest(type="radio" name fct)
+                        label(for="guest") Guest
+
+                    div.contact2-form-btn
+                        div.wrap-contact2-form-btn
+                            button.contact2-form-btn(type="submit") Login
