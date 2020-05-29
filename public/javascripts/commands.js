@@ -1,145 +1,153 @@
-let socket = io();
-let plate = document.querySelector("#plat ul");
-let ingredient = document.querySelector("#ingredient ul");
-let sauce = document.querySelector("#sauce ul");
-let drink = document.querySelector("#boisson ul");
-let dessert = document.querySelector("#dessert ul");
-let list = document.querySelector(".liste");
-let current = {"plate": null, "ingredient": [], "sauce": [], "drink": null, "dessert": null, "price": {}};
-let radios = {"plate": null, "drink": null, "dessert": null};
-let db = {"plate": {}, "ingredient": {}, "sauce": {}, "drink": {}, "dessert": {}};
+const socket = io();
+const dish = document.querySelector("#dish ul");
+const ingredient = document.querySelector("#ingredient ul");
+const sauce = document.querySelector("#sauce ul");
+const drink = document.querySelector("#drink ul");
+const dessert = document.querySelector("#dessert ul");
+const list = document.querySelector(".list");
+
+let current = {dish: null, ingredient: [], sauce: [], drink: null, dessert: null, price: {}};
+let radios = {dish: null, drink: null, dessert: null};
+let db = {dish: {}, ingredient: {}, sauce: {}, drink: {}, dessert: {}};
 
 
-function addcmd(id, plate, ingredient, sauce, drink, dessert, state, client, sandwich) {
-    for (let i of ["plate", "ingredient", "sauce", "drink", "dessert", "state", "sandwich"])
-        if (!eval(i))
-            eval(`${i} = ""`);
-    list.insertAdjacentHTML("beforeend", `<div class="com" id="cmd${id}"> <button class="donner">Donnée</button> <h1>${id}</h1> <div class="spec"> <h2>${sandwich}</h2><h3>${client}</h3><p>${plate}</p><p>${ingredient}</p><p>${sauce}</p><p>${drink}</p><p>${dessert}</p><button class="annuler">Annuler</button><button class="erreur">Erreur</button> </div> </div>`);
-    let e = document.querySelector(`.liste #cmd${id}`);
+function addCmd(command) {
+    list.insertAdjacentHTML("beforeend", `<div class="com" id="cmd${command.number}">
+    <button class="give">Give</button>
+    <h1>${command.number}</h1>
+        <div class="spec">
+        <h2>${command.sandwich}</h2>
+        <h3>${command.client}</h3>
+        <p>${command.dish}</p>
+        <p>${command.ingredients}</p>
+        <p>${command.sauces}</p>
+        <p>${command.drink}</p>
+        <p>${command.dessert}</p>
+        <button class="cancel">Cancel</button>
+        <button class="error">Error</button>
+    </div>
+</div>`);
+    let e = document.querySelector(`.list #cmd${command.number}`);
     e.addEventListener( "click" ,ev => {
         ev.stopPropagation();
         e.classList.toggle("show-spec");
     });
-    e.querySelector(".donner").addEventListener("click", ev => {
+    e.querySelector(".give").addEventListener("click", ev => {
         ev.stopPropagation();
-        socket.emit("give command", {"id": id});
+        socket.emit("give command", {"id": command.number});
     });
-    e.querySelector(".annuler").addEventListener("click", ev => {
+    e.querySelector(".cancel").addEventListener("click", ev => {
         ev.stopPropagation();
-        socket.emit("clear command", {"id": id});
+        socket.emit("clear command", {"id": command.number});
     });
-    e.querySelector(".erreur").addEventListener("click", ev => {
+    e.querySelector(".error").addEventListener("click", ev => {
         ev.stopPropagation();
-        socket.emit("error command", {"id": id});
+        socket.emit("error command", {"id": command.number});
     });
-    switch (state) {
-        case "WIP":
-            WIP(e, sandwich);
-            break;
-        case "done":
-            done(e);
-            break;
-        case "gave":
-            give(e);
-            break;
-        case "error":
-            error(e);
-            break;
-    }
-    document.querySelector("#resume>h1").innerHTML = `Commande ${id+1}`;
+    if (command.error)
+        error(e)
+    else if (command.give)
+        give(e)
+    else if (command.done)
+        done(e)
+    else if (command.WIP)
+        WIP(e, command.sandwich)
+    document.querySelector("#resume>h1").innerHTML = `Command ${command.number+1}`;
 }
 
-function addplate(id, name) {
-    plate.insertAdjacentHTML("beforeend", `<li><input type="radio" name="plate" id="${id}"><label for="${id}">${name}</label></li>`);
-    let e = document.querySelector(`input[id=${id} ]`);
+function addDish(d) {
+    dish.insertAdjacentHTML("beforeend", `<li><input type="radio" name="dish" id="dish${d.id}"><label for="dish${d.id}">${d.name}</label></li>`);
+    let e = document.querySelector(`input[id=dish${d.id}]`);
     e.addEventListener("click", () => {
-        radiocheck(e,  "plate",0);
+        radioCheck(e);
         document.querySelectorAll("input[name=ingredient],input[name=sauce]").forEach( el => {
             if (el.checked)
                 el.click();
         });
         document.querySelectorAll("input[name=ingredient],input[name=sauce]").forEach( el => {
-            el.disabled = !(e.checked && !db["plate"][e.id]["avoid " + el.name]);
+            el.disabled = !(e.checked && !db.dish[e.id.replace(e.name, "")]["avoid" + el.name.charAt(0).toUpperCase() + el.name.slice(1)]);
         });
     })
 }
 
-function addingredient(id, name) {
-    ingredient.insertAdjacentHTML("beforeend", `<li><input type="checkbox" disabled=true name="ingredient" id="${id}"><label for="${id}">${name}</label></li>`);
-    let e = document.querySelector(`input[id=${id} ]`);
+function addIngredient(i) {
+    ingredient.insertAdjacentHTML("beforeend", `<li><input type="checkbox" disabled=true name="ingredient" id="ingredient${i.id}"><label for="ingredient${i.id}">${i.name}</label></li>`);
+    let e = document.querySelector(`input[id=ingredient${i.id}]`);
     e.addEventListener("click", () => {
-        checkcheck(e, "ingredient", 1, 3)
+        checkCheck(e, 3)
     })
 }
 
-function addsauce(id, name) {
-    sauce.insertAdjacentHTML("beforeend", `<li><input type="checkbox" disabled=true name="sauce" id="${id}"><label for="${id}">${name}</label></li>`);
-    let e = document.querySelector(`input[id=${id} ]`);
+function addSauce(s) {
+    sauce.insertAdjacentHTML("beforeend", `<li><input type="checkbox" disabled=true name="sauce" id="sauce${s.id}"><label for="sauce${s.id}">${s.name}</label></li>`);
+    let e = document.querySelector(`input[id=sauce${s.id}]`);
     e.addEventListener("click", () => {
-        checkcheck(e, "sauce", 2, 2)
+        checkCheck(e,2)
     })
 }
 
-function adddrink(id, name) {
-    drink.insertAdjacentHTML("beforeend", `<li><input type="radio" name="drink" id="${id}"><label for="${id}">${name}</label></li>`);
-    let e = document.querySelector(`input[id=${id} ]`);
+function addDrink(d) {
+    drink.insertAdjacentHTML("beforeend", `<li><input type="radio" name="drink" id="drink${d.id}"><label for="drink${d.id}">${d.name}</label></li>`);
+    let e = document.querySelector(`input[id=drink${d.id}]`);
     e.addEventListener("click", () => {
-        radiocheck(e, "drink", 3)
+        radioCheck(e)
     })
 }
 
-function adddessert(id, name) {
-    dessert.insertAdjacentHTML("beforeend", `<li><input type="radio" name="dessert" id="${id}"><label for="${id}">${name}</label></li>`);
-    let e = document.querySelector(`input[id=${id} ]`);
+function addDessert(d) {
+    dessert.insertAdjacentHTML("beforeend", `<li><input type="radio" name="dessert" id="dessert${d.id}"><label for="dessert${d.id}">${d.name}</label></li>`);
+    let e = document.querySelector(`input[id=dessert${d.id}]`);
     e.addEventListener("click", () => {
-        radiocheck(e, "dessert", 4)
+        radioCheck(e)
     })
 }
 
-function radiocheck (e, n, p) {
+function radioCheck (e) {
     if (e.checked) {
         let curr, name;
-        if (e.id === radios[n]) {
+        if (e.id.replace(e.name, "") === radios[e.name]) {
             e.checked = false;
-            radios[n] = null;
+            radios[e.name] = null;
             curr = null;
             name = null;
         } else {
-            radios[n] = e.id;
-            curr = e.id;
+            radios[e.name] = e.id.replace(e.name, "");
+            curr = e.id.replace(e.name, "");
             name = document.querySelector(`label[for=${e.id}]`).innerHTML;
         }
-        current[n] = curr;
+        current[e.name] = curr;
         if (curr)
-            current["price"][n] = db[n][curr]["price"];
+            current.price[e.name] = db[e.name][curr.replace(e.name, "")].price;
         else
-            current["price"][n] = 0;
+            current.price[e.name] = 0;
         price();
-        document.querySelectorAll("#resume p")[p].innerHTML = name;
+        document.getElementById("p-"+e.name).innerHTML = name;
     }
 }
 
-function checkcheck(e, n, p, l) {
+function checkCheck(e, l) {
     if (e.checked)
-        current[n].push(e.id);
+        current[e.name].push(e.id.replace(e.name, ""));
     else
-        current[n].splice(current[n].indexOf(e.id), 1);
-    document.querySelectorAll(`input[name=${n}]`).forEach( e => {
+        current[e.name].splice(current[e.name].indexOf(e.id.replace(e.name, "")), 1);
+    document.querySelectorAll(`input[name=${e.name}]`).forEach( e => {
         if (!e.checked)
-            e.disabled = current[n].length === l
+            e.disabled = current[e.name].length === l
     });
-    current["price"][n] = 0;
-    for (let i of current[n]) {
-        current["price"][n] += db[n][i]["price"]
+    current.price[e.name] = 0;
+    for (let i of current[e.name]) {
+        current.price[e.name] += db[e.name][i].price
     }
     price();
-    document.querySelectorAll("#resume p")[p].innerHTML = current[n].join(" - ");
+    let names = [];
+    current[e.name].forEach(el=>names.push(document.querySelector(`label[for=${e.name}${el}]`).innerHTML));
+    document.getElementById("p-"+e.name).innerHTML = names.join(" - ");
 }
 
 function clear(e) {
-    e.classList.remove("finis");
-    e.classList.remove("donnee");
-    e.classList.remove("probleme");
+    e.classList.remove("done");
+    e.classList.remove("give");
+    e.classList.remove("warning");
     e.classList.remove("WIP");
     e.classList.remove("show-spec");
     list.prepend(e);
@@ -164,29 +172,27 @@ function give(e) {
 
 function error(e) {
     e.classList.remove("show-spec");
-    e.classList.add("probleme");
+    e.classList.add("warning");
     list.appendChild(e);
 }
 
 function price() {
     let p = 0;
-    for (let i in current["price"]) {
-        p += current["price"][i]
+    for (let i in current.price) {
+        p += current.price[i]
     }
     p = p.toFixed(2);
     document.querySelector("#resume h2").innerHTML = p+"€";
     return p;
 }
 
-socket.on("connect", data => {
-    if (data === "ok") {
-        socket.emit("list plate");
-        socket.emit("list ingredient");
-        socket.emit("list sauce");
-        socket.emit("list drink");
-        socket.emit("list dessert");
-        socket.emit("list command");
-    }
+socket.on("connected", () => {
+    socket.emit("list dish");
+    socket.emit("list ingredient");
+    socket.emit("list sauce");
+    socket.emit("list drink");
+    socket.emit("list dessert");
+    socket.emit("list command");
 });
 
 socket.on("list command", data => {
@@ -195,20 +201,20 @@ socket.on("list command", data => {
         list.removeChild(child);
         child = list.lastElementChild;
     }
-    for (let c of data.list) {
-        addcmd(c.id, c.plate, c.ingredient, c.sauce, c.drink, c.dessert, c.state, c.client, c.sandwich);
+    for (let c of data) {
+        addCmd(c);
     }
 });
 
-socket.on("list plate", data => {
-    let child = plate.lastElementChild;
+socket.on("list dish", data => {
+    let child = dish.lastElementChild;
     while (child) {
-        plate.removeChild(child);
-        child = plate.lastElementChild;
+        dish.removeChild(child);
+        child = dish.lastElementChild;
     }
-    for (let p of data.list) {
-        addplate(p.id, p.name);
-        db["plate"][p.id] = {"name": p.name, "price": p.price, "avoid ingredient": p.avoid_ingredient, "avoid sauce": p.avoid_sauce}
+    for (let d of data) {
+        addDish(d);
+        db.dish[d.id] = d;
     }
 });
 
@@ -218,9 +224,9 @@ socket.on("list ingredient", data => {
         ingredient.removeChild(child);
         child = ingredient.lastElementChild;
     }
-    for (let i of data.list) {
-        addingredient(i.id, i.name);
-        db["ingredient"][i.id] = {"name": i.name, "price": i.price}
+    for (let i of data) {
+        addIngredient(i);
+        db.ingredient[i.id] = i;
     }
 });
 
@@ -230,9 +236,9 @@ socket.on("list sauce", data => {
         sauce.removeChild(child);
         child = sauce.lastElementChild;
     }
-    for (let s of data.list) {
-        addsauce(s.id, s.name);
-        db["sauce"][s.id] = {"name": s.name, "price": s.price}
+    for (let s of data) {
+        addSauce(s);
+        db.sauce[s.id] = s;
     }
 });
 
@@ -242,9 +248,9 @@ socket.on("list drink", data => {
         drink.removeChild(child);
         child = drink.lastElementChild;
     }
-    for (let d of data.list) {
-        adddrink(d.id, d.name);
-        db["drink"][d.id] = {"name": d.name, "price": d.price}
+    for (let d of data) {
+        addDrink(d);
+        db.drink[d.id] = d;
     }
 });
 
@@ -254,53 +260,57 @@ socket.on("list dessert", data => {
         dessert.removeChild(child);
         child = dessert.lastElementChild;
     }
-    for (let d of data.list) {
-        adddessert(d.id, d.name);
-        db["dessert"][d.id] = {"name": d.name, "price": d.price}
+    for (let d of data) {
+        addDessert(d);
+        db.dessert[d.id] = d;
     }
 });
 
 socket.on("new command", data => {
-    addcmd(data.id, data.plate, data.ingredient, data.sauce, data.drink, data.dessert, data.state, data.client, data.sandwich);
+    addCmd(data);
 });
 
 socket.on("cleared command", data => {
-    clear(document.querySelector(`.liste #cmd${data.id}`))
+    clear(document.querySelector(`.list #cmd${data}`))
 });
 
 socket.on("WIPed command", data => {
-    WIP(document.querySelector(`.liste #cmd${data.id}`), data.sandwich)
+    WIP(document.querySelector(`.list #cmd${data.id}`), data.sandwich)
 });
 
 socket.on("finish command", data => {
-    done(document.querySelector(`.liste #cmd${data.id}`))
+    done(document.querySelector(`.list #cmd${data}`))
 });
 
 socket.on("gave command", data => {
-    give(document.querySelector(`.liste #cmd${data.id}`))
+    give(document.querySelector(`.list #cmd${data}`))
 });
 
 socket.on("glitched command", data => {
-    error(document.querySelector(`.liste #cmd${data.id}`))
+    error(document.querySelector(`.list #cmd${data}`))
 });
+
+socket.on("error", () => {
+    alert("An error occurred :")
+})
 
 document.querySelector(".validation").addEventListener("click", ev => {
     ev.stopPropagation();
     let user = document.getElementById("user");
-    if (!current.plate && !current.ingredient.length && !current.sauce.length && !current.drink && !current.dessert) {
+    if (!current.dish && !current.ingredient.length && !current.sauce.length && !current.drink && !current.dessert) {
         alert("Empty command !");
         return;
     } else if (user.style.color === "red") {
-        current["firstname"] = prompt("Prénom");
-        current["lastname"] = prompt("Nom");
+        current.firstname = prompt("Prénom");
+        current.lastname = prompt("Nom");
     }
 
-    current["client"] = user.value;
-    current["pc"] = pc_id;
-    current["price"] = price();
+    current.client = user.value;
+    current.pc = 0;
+    current.price = price();
     socket.emit("add command", current);
-    current = {"plate": null, "ingredient": [], "sauce": [], "drink": null, "dessert": null, "price": {}};
-    document.querySelectorAll("input[name=plate],input[name=drink],input[name=dessert]").forEach( e => {
+    current = {dish: null, ingredient: [], sauce: [], drink: null, dessert: null, price: {}};
+    document.querySelectorAll("input[name=dish],input[name=drink],input[name=dessert]").forEach( e => {
         e.checked = false;
     });
     document.querySelectorAll("input[name=ingredient],input[name=sauce]").forEach( e => {
@@ -329,12 +339,12 @@ function hinter(ev) {
 socket.on("list users", data => {
     let user_list = document.getElementById("user_list");
     user_list.innerHTML = "";
-    for (let u of data["list"]) {
+    for (let u of data) {
         user_list.insertAdjacentHTML("beforeend", `<option value="${u}">`);
     }
 
     let user = document.getElementById("user");
-    if (data["list"].indexOf(user.value) === -1)
+    if (data.indexOf(user.value) === -1)
         user.style.color = "red";
     else {
         user.style.color = "";

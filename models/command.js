@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
   const Command = sequelize.define('Command', {
     number: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      unique: "uniqueNumberPerDay"
     },
     price: {
       type: DataTypes.FLOAT,
@@ -12,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
     date: {
       type: DataTypes.DATEONLY,
       defaultValue: DataTypes.NOW,
-      allowNull: false
+      allowNull: false,
+      unique: "uniqueNumberPerDay"
     },
     take: {
       type: DataTypes.DATE,
@@ -41,13 +43,13 @@ module.exports = (sequelize, DataTypes) => {
   Command.associate = function(models) {
     // associations can be defined here
     Command.belongsTo(models.User, {
-      as: "command"
+      as: "client"
     });
     Command.belongsTo(models.User, {
-      as: "pcCommand"
+      as: "pc"
     });
     Command.belongsTo(models.User, {
-      as: "sandwichCommand"
+      as: "sandwich"
     });
     Command.belongsTo(models.Dish);
     Command.belongsToMany(models.Ingredient, {

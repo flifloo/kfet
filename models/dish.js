@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     }
   }, {
-    tableName: "dishes"
+    tableName: "Dishes"
   });
   Dish.associate = function(models) {
     Dish.hasMany(models.Command);
