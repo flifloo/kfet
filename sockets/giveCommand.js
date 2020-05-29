@@ -1,4 +1,5 @@
 const models = require("../models")
+const utils = require("./utils")
 
 module.exports = socket => {
     return async (data) => {
@@ -9,12 +10,7 @@ module.exports = socket => {
 
             c.give = new Date()
 
-            let service = models.Service.findOne({where:{date:{[models.Sequelize.Op.eq]: new Date()}}});
-            if (c.WIP && service) {
-                let sandwiches = [service.sandwich1Id, service.sandwich2Id, service.sandwich3Id]
-                if (c.sandwichId in sandwiches)
-                    service["sandwich"+sandwiches.indexOf(c.sandwichId)+1] = false;
-            }
+            utils.resetService(c, await models.Service.findOne({where:{date:{[models.Sequelize.Op.eq]: new Date()}}}));
             c.WIP = false;
 
             await c.save();
