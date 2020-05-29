@@ -524,7 +524,7 @@ textarea.input2 + .focus-input2::after {
   background-color: rgb(70, 170, 185);
 }
 
-.list .finis {
+.list .done {
   background-color: rgb(185, 176, 30);
 }
 
@@ -536,7 +536,7 @@ textarea.input2 + .focus-input2::after {
   background-color: rgb(133, 1, 1);
 }
 
-.list .warning .error, .list .warning .donner{
+.list .warning .error, .list .warning .give{
   display: none;
 }
 
@@ -549,7 +549,7 @@ textarea.input2 + .focus-input2::after {
   background-color: rgb(133, 1, 1);
 }
 
-.list .give .donner, .list .give .error{
+.list .give .give, .list .give .error{
   display : none;
 }
 

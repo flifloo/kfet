@@ -5,6 +5,9 @@ const listSauce = require("./listSauce")
 const listDrink = require("./listDrink")
 const listDessert = require("./listDessert")
 const addCommand = require("./addCommand")
+const giveCommand = require("./giveCommand")
+const errorCommand = require("./errorCommand")
+const clearCommand = require("./clearCommand")
 
 module.exports = socket => {
     socket.on("list command", listCommand(socket));
@@ -15,6 +18,9 @@ module.exports = socket => {
     socket.on("list dessert", listDessert(socket));
     socket.on("list dessert", listDessert(socket));
     socket.on("add command", addCommand(socket));
+    socket.on("give command", giveCommand(socket));
+    socket.on("error command", errorCommand(socket));
+    socket.on("clear command", clearCommand(socket));
     console.log("New connection !");
     socket.emit("connected");
 }

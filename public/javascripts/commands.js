@@ -15,7 +15,7 @@ function addCmd(command) {
     list.insertAdjacentHTML("beforeend", `<div class="com" id="cmd${command.number}">
     <button class="give">Give</button>
     <h1>${command.number}</h1>
-        <div class="spec">
+    <div class="spec">
         <h2>${command.sandwich}</h2>
         <h3>${command.client}</h3>
         <p>${command.dish}</p>
@@ -34,15 +34,15 @@ function addCmd(command) {
     });
     e.querySelector(".give").addEventListener("click", ev => {
         ev.stopPropagation();
-        socket.emit("give command", {"id": command.number});
+        socket.emit("give command", command.number);
     });
     e.querySelector(".cancel").addEventListener("click", ev => {
         ev.stopPropagation();
-        socket.emit("clear command", {"id": command.number});
+        socket.emit("clear command", command.number);
     });
     e.querySelector(".error").addEventListener("click", ev => {
         ev.stopPropagation();
-        socket.emit("error command", {"id": command.number});
+        socket.emit("error command", command.number);
     });
     if (command.error)
         error(e)
@@ -161,12 +161,12 @@ function WIP(e, name) {
 
 function done(e) {
     e.classList.remove("show-spec");
-    e.classList.add("finis");
+    e.classList.add("done");
 }
 
 function give(e) {
     e.classList.remove("show-spec");
-    e.classList.add("donnee");
+    e.classList.add("give");
     list.appendChild(e);
 }
 
@@ -270,7 +270,7 @@ socket.on("new command", data => {
     addCmd(data);
 });
 
-socket.on("cleared command", data => {
+socket.on("clear command", data => {
     clear(document.querySelector(`.list #cmd${data}`))
 });
 
@@ -282,11 +282,11 @@ socket.on("finish command", data => {
     done(document.querySelector(`.list #cmd${data}`))
 });
 
-socket.on("gave command", data => {
+socket.on("give command", data => {
     give(document.querySelector(`.list #cmd${data}`))
 });
 
-socket.on("glitched command", data => {
+socket.on("error command", data => {
     error(document.querySelector(`.list #cmd${data}`))
 });
 
