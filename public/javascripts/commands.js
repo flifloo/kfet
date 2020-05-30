@@ -177,13 +177,7 @@ function error(e) {
 }
 
 function price() {
-    let p = 0;
-    for (let i in current.price) {
-        p += current.price[i]
-    }
-    p = p.toFixed(2);
-    document.querySelector("#resume h2").innerHTML = p+"€";
-    return p;
+    socket.emit("price", current);
 }
 
 function addUser() {
@@ -205,7 +199,6 @@ function addUser() {
 
 function addCommand() {
     current.pc = null;
-    current.price = price();
     socket.emit("add command", current);
     clearSelections();
 }
@@ -350,6 +343,10 @@ socket.on("add user", data => {
     if (data === current.client)
         addCommand();
 });
+
+socket.on("price", data => {
+    document.querySelector("#resume h2").innerHTML = data+"€";
+})
 
 socket.on("fail add user", () => {
     alert("User creation fail !");

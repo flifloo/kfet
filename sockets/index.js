@@ -10,6 +10,7 @@ const addUSer = require("./addUser")
 const giveCommand = require("./giveCommand");
 const errorCommand = require("./errorCommand");
 const clearCommand = require("./clearCommand");
+const price = require("./price")
 
 module.exports = socket => {
     socket.on("list command", listCommand(socket));
@@ -25,6 +26,7 @@ module.exports = socket => {
     socket.on("give command", giveCommand(socket));
     socket.on("error command", errorCommand(socket));
     socket.on("clear command", clearCommand(socket));
+    socket.on("price", price(socket));
     console.log("New connection !");
     socket.emit("connected");
 }

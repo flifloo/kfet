@@ -10,7 +10,7 @@ module.exports = socket => {
             });
             let c = await models.Command.create({
                 number: o ? o.number + 1 : 1,
-                price: data.price
+                price: await utils.price(data)
             });
             if (data.client)
                 await c.setClient(await models.User.findByPk(data.client));
@@ -19,15 +19,15 @@ module.exports = socket => {
             if (data.dish)
                 await c.setDish(await models.Dish.findByPk(data.dish));
             if (data.ingredient)
-                for (let i in data.ingredient)
+                for (let i of data.ingredient)
                     await c.addIngredient(await models.Ingredient.findByPk(i));
             if (data.sauce)
-                for (let s in data.sauce)
+                for (let s of data.sauce)
                     await c.addSauce(await models.Sauce.findByPk(s));
             if (data.drink)
                 await c.addDrink(await models.Drink.findByPk(data.drink));
             if (data.dessert)
-                await c.setDessert(await models.Drink.findByPk(data.dessert));
+                await c.setDessert(await models.Dessert.findByPk(data.dessert));
 
             let send = utils.commandExport(c);
             socket.emit("new command", send);

@@ -1,3 +1,5 @@
+const models = require("../models");
+
 function commandExport (c ) {
     return {
         number: c.number,
@@ -23,5 +25,26 @@ function resetService(c, service) {
     }
 }
 
+async function price(data) {
+    let price = 0;
+    if (data.dish)
+        price += (await models.Dish.findByPk(data.dish)).price;
+    if (data.ingredient)
+        for (let i of data.ingredient)
+            price += (await models.Ingredient.findByPk(i)).price;
+    if (data.sauce)
+        for (let s of data.sauce)
+            price += (await models.Sauce.findByPk(s)).price;
+    if (data.drink)
+        price += (await models.Drink.findByPk(data.drink)).price;
+    if (data.dessert)
+        price += (await models.Dessert.findByPk(data.dessert)).price;
+
+    if (data.dish && data.ingredient && data.sauce && data.drink && data.dessert)
+        price -= 0.3;
+    return price;
+}
+
 module.exports.commandExport = commandExport;
 module.exports.resetService = resetService;
+module.exports.price = price;
