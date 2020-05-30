@@ -1,8 +1,10 @@
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
+const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const config = require("./config/config.json");
 
 const indexRouter = require("./routes/index");
 const loginRouter = require("./routes/login")
@@ -13,6 +15,18 @@ const serviceRouter = require("./routes/service")
 const stocksRouter = require("./routes/stocks")
 
 const app = express();
+const sess = {
+  key: "userSId",
+  secret: config.secret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {}
+}
+
+if (app.get("env") === "production") {
+  app.set("trust proxy", 1);
+  sess.cookie.secure = true;
+}
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -22,7 +36,13 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session(sess));
 app.use(express.static(path.join(__dirname, "public")));
+app.use((req, res, next) => {
+  if (req.cookies.userSId && !req.session.user)
+    res.clearCookie("userSId");
+  next();
+});
 
 app.use("/", indexRouter);
 app.use("/login", loginRouter);

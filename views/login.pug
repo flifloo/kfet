@@ -5,20 +5,21 @@ block content
         div.container-contact2
             div.wrap-contact2
                 span.contact2-form-title Login
-                div.wrap-input2.validate-input(data-validate="Username is required")
-                    input.input2(type="text" name="name")
-                    span.focus-input2(data-placeholder="Username")
-                div.wrap-input2.validate-input(data-validate="Password invalid")
-                    input.input2(type="password" name="password")
-                    span.focus-input2(data-placeholder="Mot de passe")
-                div#fct
-                    input#commi(type="radio" name="fct")
-                    label(for="commi") Commi
-                    input#pc(type="radio" name="fct")
-                    label(for="pc") PC
-                    input#guest(type="radio" name="fct")
-                    label(for="guest") Guest
-                div.container-contact2-form-btn
-                    div.wrap-contact2-form-btn
-                        div.contact2-form-bgbtn
-                        button.contact2-form-btn(type="submit") Login
+                form(action="/login" method="POST")
+                    div.wrap-input2.validate-input(data-validate="Username is required")
+                        input.input2(type="text" name="username")
+                        span.focus-input2(data-placeholder="Username")
+                    div.wrap-input2.validate-input(data-validate="Password invalid")
+                        input.input2(type="password" name="password")
+                        span.focus-input2(data-placeholder="Mot de passe")
+                    div#fct
+                        input#commi(type="radio" name="fct")
+                        label(for="commi") Commi
+                        input#pc(type="radio" name="fct")
+                        label(for="pc") PC
+                        input#guest(type="radio" name="fct")
+                        label(for="guest") Guest
+                    div.container-contact2-form-btn
+                        div.wrap-contact2-form-btn
+                            div.contact2-form-bgbtn
+                            button.contact2-form-btn(type="submit") Login

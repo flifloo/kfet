@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       set(value) {
         if (value)
-          this.setDataValue("passwordHash", require("crypto").createHash("sha256").update(this.username + value).digest("utf-8"));
+          this.setDataValue("passwordHash", require("crypto").createHash("sha256").update(this.username + value).digest("base64"));
       }
     },
     firstName: {
