@@ -65,7 +65,7 @@ function addDish(d) {
                 el.click();
         });
         document.querySelectorAll("input[name=ingredient],input[name=sauce]").forEach( el => {
-            el.disabled = !(e.checked && !db.dish[e.id.replace(e.name, "")]["avoid" + el.name.charAt(0).toUpperCase() + el.name.slice(1)]);
+            el.disabled = !(e.checked && !(db.dish[e.id.replace(e.name, "")]["max" + el.name.charAt(0).toUpperCase() + el.name.slice(1)+"s"] === 0));
         });
     })
 }
@@ -74,7 +74,7 @@ function addIngredient(i) {
     ingredient.insertAdjacentHTML("beforeend", `<li><input type="checkbox" disabled=true name="ingredient" id="ingredient${i.id}"><label for="ingredient${i.id}">${i.name}</label></li>`);
     let e = document.querySelector(`input[id=ingredient${i.id}]`);
     e.addEventListener("click", () => {
-        checkCheck(e, 3)
+        checkCheck(e)
     })
 }
 
@@ -82,7 +82,7 @@ function addSauce(s) {
     sauce.insertAdjacentHTML("beforeend", `<li><input type="checkbox" disabled=true name="sauce" id="sauce${s.id}"><label for="sauce${s.id}">${s.name}</label></li>`);
     let e = document.querySelector(`input[id=sauce${s.id}]`);
     e.addEventListener("click", () => {
-        checkCheck(e,2)
+        checkCheck(e)
     })
 }
 
@@ -125,15 +125,14 @@ function radioCheck (e) {
     }
 }
 
-function checkCheck(e, l) {
-    //ToDo setup dynamic maxSauces and maxIngredients from db !
+function checkCheck(e) {
     if (e.checked)
         current[e.name].push(e.id.replace(e.name, ""));
     else
         current[e.name].splice(current[e.name].indexOf(e.id.replace(e.name, "")), 1);
     document.querySelectorAll(`input[name=${e.name}]`).forEach( e => {
         if (!e.checked)
-            e.disabled = current[e.name].length === l
+            e.disabled = current[e.name].length === db.dish[current.dish]["max"+e.name.charAt(0).toUpperCase() + e.name.slice(1)+"s"];
     });
     current.price[e.name] = 0;
     for (let i of current[e.name]) {

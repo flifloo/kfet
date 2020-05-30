@@ -11,14 +11,12 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
       allowNull: false
     },
-    avoidIngredients: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    maxIngredients: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
-    avoidSauces: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    maxSauces: {
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {

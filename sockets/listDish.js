@@ -8,8 +8,8 @@ module.exports = socket => {
                 id: d.id,
                 name: d.name,
                 price: d.price,
-                avoidIngredients: d.avoidIngredients,
-                avoidSauces: d.avoidSauces
+                maxIngredients: d.maxIngredients,
+                maxSauces: d.maxSauces
             });
         }
         socket.emit("list dish", dishes);
