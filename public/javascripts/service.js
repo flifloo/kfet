@@ -59,9 +59,8 @@ socket.on("list user", data => {
     });
 });
 
-socket.on("add user", data => {
-    alert("User creation fail !");
-    addUser(data);
+socket.on("add user", () => {
+    next();
 });
 
 socket.on("set service", () => {
@@ -71,7 +70,8 @@ socket.on("set service", () => {
 
 socket.on("fail add user", data => {
     alert("User creation fail !");
-    addUser(data);
+    if (data && data.username)
+        addUser(data);
 });
 
 socket.on("internal error", () => {
