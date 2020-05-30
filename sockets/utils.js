@@ -1,6 +1,6 @@
 const models = require("../models");
 
-function commandExport (c ) {
+function commandExport (c) {
     return {
         number: c.number,
         sandwich: c.sandwich ? c.sandwich.username : null,

@@ -25,11 +25,11 @@ module.exports = socket => {
                 for (let s of data.sauce)
                     await c.addSauce(await models.Sauce.findByPk(s));
             if (data.drink)
-                await c.addDrink(await models.Drink.findByPk(data.drink));
+                await c.setDrink(await models.Drink.findByPk(data.drink));
             if (data.dessert)
                 await c.setDessert(await models.Dessert.findByPk(data.dessert));
 
-            let send = utils.commandExport(c);
+            let send = utils.commandExport(await models.Command.findByPk(c.id, {include: [models.Dish, models.Ingredient, models.Sauce, models.Drink, models.Dessert, "client", "pc", "sandwich"]}));
             socket.emit("new command", send);
             socket.broadcast.emit("new command", send);
         } catch (e) {
