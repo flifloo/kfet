@@ -1,5 +1,5 @@
-const models = require("../models")
-const utils = require("./utils")
+const models = require("../models");
+const utils = require("./utils");
 
 module.exports = socket => {
     return async (data) => {
@@ -17,7 +17,7 @@ module.exports = socket => {
             socket.emit("give command", data);
             socket.broadcast.emit("give command", data);
         } catch (e) {
-            socket.emit("error");
+            socket.emit("internal error");
             console.error(e);
         }
     }
