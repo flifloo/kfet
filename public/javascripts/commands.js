@@ -126,6 +126,7 @@ function radioCheck (e) {
 }
 
 function checkCheck(e, l) {
+    //ToDo setup dynamic maxSauces and maxIngredients from db !
     if (e.checked)
         current[e.name].push(e.id.replace(e.name, ""));
     else
@@ -184,6 +185,49 @@ function price() {
     p = p.toFixed(2);
     document.querySelector("#resume h2").innerHTML = p+"€";
     return p;
+}
+
+function addUser() {
+    let firstName, lastName;
+    do {
+        firstName = prompt("First name");
+    } while (firstName === "");
+    if (firstName) {
+        do {
+            lastName = prompt("Last name");
+        } while (lastName === "");
+        if (lastName)
+            socket.emit("add user", {username: current.client, firstName: firstName, lastName: lastName});
+    }
+    if (!firstName|| !lastName) {
+        alert("User creation aborted");
+    }
+}
+
+function addCommand() {
+    current.pc = null;
+    current.price = price();
+    socket.emit("add command", current);
+    clearSelections();
+}
+
+function clearSelections() {
+    current = {dish: null, ingredient: [], sauce: [], drink: null, dessert: null, price: {}};
+    document.querySelectorAll("input[name=dish],input[name=drink],input[name=dessert]").forEach( e => {
+        e.checked = false;
+    });
+    document.querySelectorAll("input[name=ingredient],input[name=sauce]").forEach( e => {
+        e.checked = false;
+        e.disabled = true;
+    });
+    document.querySelectorAll("#resume p").forEach( e => {
+        e.innerHTML = ""
+    });
+    let user = document.getElementById("user");
+    user.value = "";
+    user.style.color = "";
+    document.getElementById("user_list").innerHTML = "";
+    document.querySelector("#resume h2").innerHTML = "0€";
 }
 
 socket.on("connected", () => {
@@ -266,6 +310,19 @@ socket.on("list dessert", data => {
     }
 });
 
+socket.on("list user", data => {
+    let user_list = document.getElementById("user_list");
+    user_list.innerHTML = "";
+    for (let u of data)
+        user_list.insertAdjacentHTML("beforeend", `<option value="${u}">`);
+
+    let user = document.getElementById("user");
+    if (data.indexOf(user.value) === -1)
+        user.style.color = "red";
+    else
+        user.style.color = "";
+});
+
 socket.on("new command", data => {
     addCmd(data);
 });
@@ -290,63 +347,35 @@ socket.on("error command", data => {
     error(document.querySelector(`.list #cmd${data}`))
 });
 
-socket.on("error", () => {
-    alert("An error occurred :")
+socket.on("add user", data => {
+    if (data === current.client)
+        addCommand();
+});
+
+socket.on("fail add user", () => {
+    alert("User creation fail !");
+    addUser();
+});
+
+socket.on("internal error", () => {
+    alert("An error occurred !");
 })
 
 document.querySelector(".validation").addEventListener("click", ev => {
     ev.stopPropagation();
-    let user = document.getElementById("user");
-    if (!current.dish && !current.ingredient.length && !current.sauce.length && !current.drink && !current.dessert) {
+    if (!current.dish && !current.ingredient.length && !current.sauce.length && !current.drink && !current.dessert)
         alert("Empty command !");
-        return;
-    } else if (user.style.color === "red") {
-        current.firstname = prompt("Prénom");
-        current.lastname = prompt("Nom");
-    }
-
-    current.client = user.value;
-    current.pc = 0;
-    current.price = price();
-    socket.emit("add command", current);
-    current = {dish: null, ingredient: [], sauce: [], drink: null, dessert: null, price: {}};
-    document.querySelectorAll("input[name=dish],input[name=drink],input[name=dessert]").forEach( e => {
-        e.checked = false;
-    });
-    document.querySelectorAll("input[name=ingredient],input[name=sauce]").forEach( e => {
-        e.checked = false;
-        e.disabled = true;
-    });
-    document.querySelectorAll("#resume p").forEach( e => {
-        e.innerHTML = ""
-    });
-    user.value = "";
-    user.style.color = "";
-    document.getElementById("user_list").innerHTML = "";
-    document.querySelector("#resume h2").innerHTML = "0€";
+    else if (user.style.color === "red")
+        addUser();
+    else
+        addCommand();
 });
 
-document.getElementById("user").addEventListener("keyup", ev => {hinter(ev)});
-
-function hinter(ev) {
+document.getElementById("user").addEventListener("keyup", ev => {
     let input = ev.target;
     let min_characters = 0;
     if (input.value.length < min_characters)
         return;
-    socket.emit("list users", {"user": input.value});
-}
-
-socket.on("list users", data => {
-    let user_list = document.getElementById("user_list");
-    user_list.innerHTML = "";
-    for (let u of data) {
-        user_list.insertAdjacentHTML("beforeend", `<option value="${u}">`);
-    }
-
-    let user = document.getElementById("user");
-    if (data.indexOf(user.value) === -1)
-        user.style.color = "red";
-    else {
-        user.style.color = "";
-    }
+    socket.emit("list user", input.value);
+    current.client = input.value;
 });
