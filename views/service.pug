@@ -7,7 +7,7 @@ block content
                 li Back to commands
 
     div#main-container.bg-contact2(style="background-image: url(/images/bg-01.jpg); height: 93vh;")
-        form#stocks.container(action="#")
+        form#stocks.container(action="")
             div#teams
                 div#sandwich
                     label(for="sandwich1") Sandwich 1
@@ -25,7 +25,7 @@ block content
                     label(for="commi2") Commi 2
                     input#commi2(list="user_list" type="text")
                 div#okteam
-                    button.contact2-form-btn Accept
+                    button(type="button").contact2-form-btn Accept
                 datalist#user_list
 
     script(src="/socket.io/socket.io.js")

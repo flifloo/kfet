@@ -5,8 +5,10 @@ const listSauce = require("./listSauce");
 const listDrink = require("./listDrink");
 const listDessert = require("./listDessert");
 const listUser = require("./listUser");
+const listService = require("./listService");
 const addCommand = require("./addCommand");
-const addUSer = require("./addUser")
+const addUSer = require("./addUser");
+const setService = require("./setService");
 const giveCommand = require("./giveCommand");
 const errorCommand = require("./errorCommand");
 const clearCommand = require("./clearCommand");
@@ -21,8 +23,10 @@ module.exports = socket => {
     socket.on("list dessert", listDessert(socket));
     socket.on("list dessert", listDessert(socket));
     socket.on("list user", listUser(socket));
+    socket.on("list service", listService(socket));
     socket.on("add command", addCommand(socket));
     socket.on("add user", addUSer(socket));
+    socket.on("set service", setService(socket));
     socket.on("give command", giveCommand(socket));
     socket.on("error command", errorCommand(socket));
     socket.on("clear command", clearCommand(socket));

@@ -1,4 +1,5 @@
 "use strict";
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: {
@@ -6,7 +7,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     passwordHash: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      set(value) {
+        if (value)
+          this.setDataValue("passwordHash", require("crypto").createHash("sha256").update(this.username + value).digest("utf-8"));
+      }
     },
     firstName: {
       type: DataTypes.STRING,
