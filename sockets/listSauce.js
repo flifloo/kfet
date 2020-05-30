@@ -3,7 +3,9 @@ const models = require("../models");
 module.exports = socket => {
     return async () => {
         let sauces = []
-        for (let d of await models.Sauce.findAll()) {
+        for (let d of await models.Sauce.findAll({
+            order: ["name"]
+        })) {
             sauces.push({
                 id: d.id,
                 name: d.name,
