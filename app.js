@@ -9,6 +9,7 @@ const loginRouter = require("./routes/login")
 const logoutRouter = require("./routes/logout")
 const commandsRouter = require("./routes/commands")
 const kitchenRouter = require("./routes/kitchen")
+const serviceRouter = require("./routes/service")
 const stocksRouter = require("./routes/stocks")
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/logout", logoutRouter);
 app.use("/commands", commandsRouter);
 app.use("/kitchen", kitchenRouter);
 app.use("/stocks", stocksRouter);
+app.use("/service", serviceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
