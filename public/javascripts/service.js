@@ -66,7 +66,7 @@ socket.on("add user", () => {
 socket.on("set service", () => {
     console.log("close !")
     window.close();
-})
+});
 
 socket.on("fail add user", data => {
     alert("User creation fail !");
@@ -76,7 +76,7 @@ socket.on("fail add user", data => {
 
 socket.on("internal error", () => {
     alert("An error occurred !");
-})
+});
 
 document.querySelectorAll("input[type='text']").forEach(e => {
     e.addEventListener("keyup", ev => {hinter(ev)})

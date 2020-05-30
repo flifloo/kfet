@@ -10,7 +10,7 @@ module.exports = socket => {
 
             c.give = new Date()
 
-            utils.resetService(c, await models.Service.findOne({where:{date:{[models.Sequelize.Op.eq]: new Date()}}}));
+            await utils.resetService(c);
             c.WIP = false;
 
             await c.save();

@@ -1,22 +1,25 @@
-let socket = io();
-let WIP = document.getElementById("encours");
-let done = document.getElementById("realisee");
-let waiting = document.getElementById("attente");
+const socket = io();
+const WIP = document.getElementById("WIP");
+const done = document.getElementById("done");
+const waiting = document.getElementById("waiting");
 
-function addcmd(id, plate, ingredient, sauce, drink, dessert, state, client, sandwich) {
-    for (let i of ["plate", "ingredient", "sauce", "drink", "dessert", "state", "sandwich"])
-        if (!eval(i))
-            eval(`${i} = ""`);
-    done.insertAdjacentHTML("beforeend", `<div id=cmd${id}> <h1>${id}</h1><h2>${sandwich}</h2><h3>${client}</h3><p>${plate} | ${ingredient}</p><p>${sauce}</p><p>${drink}</p><p>${dessert}</p> </div>`);
-    let e = document.getElementById(`cmd${id}`);
-    switch (state) {
-        case "WIP":
-            WIPed(e, sandwich);
-            break;
-        case "waiting":
-            wait(e);
-            break;
-    }
+function addCmd(c) {
+    done.insertAdjacentHTML("beforeend", `<div id=cmd${c.number}>
+    <h1>${c.number}</h1>
+    <h2>${c.sandwich}</h2>
+    <h3>${c.client}</h3>
+    <p>${c.dish} | ${c.ingredient}</p>
+    <p>${c.sauce}</p>
+    <p>${c.drink}</p>
+    <p>${c.dessert}</p>
+</div>`);
+    let e = document.getElementById(`cmd${c.number}`);
+    if (c.error || c.give || c.done)
+        finish(e)
+    else if (c.WIP)
+        WIPed(e, c.sandwich)
+    else
+        wait(e)
 }
 
 function WIPed(e, name) {
@@ -32,8 +35,8 @@ function WIPed(e, name) {
         WIP.children[names.indexOf(name)-1].insertAdjacentHTML("afterend", e.outerHTML);
     }
 
-    WIP.querySelector(`#${e.id}`).addEventListener("click", ev => {
-        socket.emit("done command", {"id": parseInt(e.id.replace("cmd", ""))});
+    WIP.querySelector(`#${e.id}`).addEventListener("click", () => {
+        socket.emit("done command", parseInt(e.id.replace("cmd", "")));
     });
     e.remove();
 }
@@ -55,16 +58,13 @@ function waiter() {
             i = waiting.children.length;
         else
             i = 3 - WIP.children.length;
-        for (i-=1; i >= 0; i--) {
-            socket.emit("WIP command", {"id": waiting.children[i].querySelector("h1").innerHTML})
-        }
+        for (i-=1; i >= 0; i--)
+            socket.emit("WIP command", waiting.children[i].querySelector("h1").innerHTML);
     }
 }
 
-socket.on("connect", data => {
-    if (data === "ok") {
-        socket.emit("list service");
-    }
+socket.on("connected", () => {
+    socket.emit("list service");
 });
 
 socket.on("list command", data => {
@@ -75,48 +75,56 @@ socket.on("list command", data => {
             child = e.lastElementChild;
         }
     }
-    for (let c of data.list) {
-        addcmd(c.id, c.plate, c.ingredient, c.sauce, c.drink, c.dessert, c.state, c.client,c.sandwich);
+    for (let c of data) {
+        addCmd(c);
     }
     waiter();
 });
 
 socket.on("list service", data => {
-    if (Object.keys(data).length === 0)
+    if (!data || Object.keys(data).length === 0) {
         alert("No service set !");
-    else
+    } else
         socket.emit("list command");
 });
 
+socket.on("set service", () => {
+    socket.emit("list service");
+})
+
 socket.on("new command", data => {
-    addcmd(data.id, data.plate, data.ingredient, data.sauce, data.drink, data.dessert, data.state, data.client, data.sandwich);
+    addCmd(data);
     waiter();
 });
 
-socket.on("cleared command", data => {
-    wait(document.getElementById((`cmd${data.id}`)));
+socket.on("clear command", data => {
+    wait(document.getElementById((`cmd${data}`)));
     waiter();
 });
 
-socket.on("WIPed command", data => {
-    WIPed(document.getElementById((`cmd${data.id}`)), data.sandwich);
+socket.on("WIP command", data => {
+    WIPed(document.getElementById((`cmd${data.number}`)), data.sandwich);
     waiter();
 });
 
-socket.on("finish command", data => {
-    finish(document.getElementById((`cmd${data.id}`)));
+socket.on("done command", data => {
+    finish(document.getElementById((`cmd${data}`)));
     waiter();
 });
 
-socket.on("gave command", data => {
-    finish(document.getElementById((`cmd${data.id}`)));
+socket.on("give command", data => {
+    finish(document.getElementById((`cmd${data}`)));
     waiter();
 });
 
-socket.on("glitched command", data => {
-    finish(document.getElementById(`cmd${data.id}`));
+socket.on("error command", data => {
+    finish(document.getElementById(`cmd${data}`));
     waiter();
 });
+
+socket.on("internal error", () => {
+    alert("An error occurred !");
+})
 
 document.addEventListener("keyup", ev => {
     let keys = [["Digit1", "Numpad1"], ["Digit2", "Numpad2"], ["Digit3", "Numpad3"]];

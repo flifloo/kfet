@@ -10,6 +10,8 @@ const addCommand = require("./addCommand");
 const addUSer = require("./addUser");
 const setService = require("./setService");
 const giveCommand = require("./giveCommand");
+const WIPCommand = require("./WIPCommand");
+const doneCommand = require("./doneCommand");
 const errorCommand = require("./errorCommand");
 const clearCommand = require("./clearCommand");
 const price = require("./price")
@@ -28,6 +30,8 @@ module.exports = socket => {
     socket.on("add user", addUSer(socket));
     socket.on("set service", setService(socket));
     socket.on("give command", giveCommand(socket));
+    socket.on("WIP command", WIPCommand(socket));
+    socket.on("done command", doneCommand(socket));
     socket.on("error command", errorCommand(socket));
     socket.on("clear command", clearCommand(socket));
     socket.on("price", price(socket));

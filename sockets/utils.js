@@ -17,11 +17,16 @@ function commandExport (c) {
     }
 }
 
-function resetService(c, service) {
+async function resetService(c) {
+    let service = await models.Service.findOne({where:{date:{[models.Sequelize.Op.eq]: new Date()}}, include: ["sandwich1", "sandwich2", "sandwich3"]});
     if (c.WIP && service) {
-        let sandwiches = [service.sandwich1Id, service.sandwich2Id, service.sandwich3Id]
-        if (c.sandwichId in sandwiches)
-            service["sandwich"+sandwiches.indexOf(c.sandwichId)+1] = false;
+        for (let sn of ["sandwich1", "sandwich2", "sandwich3"]) {
+            if (service[sn].username === c.sandwichUsername) {
+                service[sn + "Busy"] = false;
+                await service.save();
+                break;
+            }
+        }
     }
 }
 

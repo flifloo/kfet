@@ -323,11 +323,11 @@ socket.on("clear command", data => {
     clear(document.querySelector(`.list #cmd${data}`))
 });
 
-socket.on("WIPed command", data => {
-    WIP(document.querySelector(`.list #cmd${data.id}`), data.sandwich)
+socket.on("WIP command", data => {
+    WIP(document.querySelector(`.list #cmd${data.number}`), data.sandwich)
 });
 
-socket.on("finish command", data => {
+socket.on("done command", data => {
     done(document.querySelector(`.list #cmd${data}`))
 });
 
