@@ -107,6 +107,31 @@ function addDessert(d) {
     })
 }
 
+function removeDish(d) {
+    dish.querySelector("#dish"+d).parentElement.remove();
+    delete db.dish[d];
+}
+
+function removeIngredient(d) {
+    ingredient.querySelector("#ingredient"+d).parentElement.remove();
+    delete db.ingredient[d];
+}
+
+function removeSauce(d) {
+    sauce.querySelector("#sauce"+d).parentElement.remove();
+    delete db.sauce[d];
+}
+
+function removeDrink(d) {
+    drink.querySelector("#drink"+d).parentElement.remove();
+    delete db.drink[d];
+}
+
+function removeDessert(d) {
+    dessert.querySelector("#dessert"+d).parentElement.remove();
+    delete db.dessert[d];
+}
+
 function radioCheck (e) {
     if (e.checked) {
         let curr, name;
@@ -336,58 +361,73 @@ socket.on("add user", data => {
 });
 
 socket.on("set dish", data => {
-    if (data.available && db.dish[data.id] === undefined) {
+    if (data.available && db.dish[data.id] === undefined)
         addDish(data);
-    } else if (!data.available && db.dish[data.id] !== undefined) {
-        dish.querySelector("#dish" + data.id).parentElement.remove();
-        delete db.dish[data.id];
-    } else {
+    else if (!data.available && db.dish[data.id] !== undefined)
+        removeDish(data.id);
+    else
         db.dish[data.id] = data;
-    }
 });
 
 socket.on("set ingredient", data => {
-    if (data.available && db.ingredient[data.id] === undefined) {
+    if (data.available && db.ingredient[data.id] === undefined)
         addIngredient(data);
-    } else if (!data.available && db.ingredient[data.id] !== undefined) {
-        ingredient.querySelector("#ingredient" + data.id).parentElement.remove();
-        delete db.ingredient[data.id];
-    } else {
+    else if (!data.available && db.ingredient[data.id] !== undefined)
+        removeIngredient(data.id);
+    else
         db.ingredient[data.id] = data;
-    }
 });
 
 socket.on("set sauce", data => {
-    if (data.available && db.sauce[data.id] === undefined) {
+    if (data.available && db.sauce[data.id] === undefined)
         addSauce(data);
-    } else if (!data.available && db.sauce[data.id] !== undefined) {
-        sauce.querySelector("#sauce" + data.id).parentElement.remove();
-        delete db.sauce[data.id];
-    } else {
+    else if (!data.available && db.sauce[data.id] !== undefined)
+        removeSauce(data.id);
+    else
         db.sauce[data.id] = data;
-    }
 });
 
 socket.on("set drink", data => {
-    if (data.available && db.drink[data.id] === undefined) {
+    if (data.available && db.drink[data.id] === undefined)
         addDrink(data);
-    } else if (!data.available && db.drink[data.id] !== undefined) {
-        drink.querySelector("#drink" + data.id).parentElement.remove();
-        delete db.drink[data.id];
-    } else {
+    else if (!data.available && db.drink[data.id] !== undefined)
+        removeDrink(data.id);
+    else
         db.drink[data.id] = data;
-    }
 });
 
 socket.on("set dessert", data => {
-    if (data.available && db.dessert[data.id] === undefined) {
+    if (data.available && db.dessert[data.id] === undefined)
         addDessert(data);
-    } else if (!data.available && db.dessert[data.id] !== undefined) {
-        dessert.querySelector("#dessert" + data.id).parentElement.remove();
-        delete db.dessert[data.id];
-    } else {
+    else if (!data.available && db.dessert[data.id] !== undefined)
+        removeDessert(data.id)
+    else
         db.dessert[data.id] = data;
-    }
+});
+
+socket.on("remove dish", data => {
+    if (db.dish[data])
+        removeDish(data);
+});
+
+socket.on("remove ingredient", data => {
+    if (db.ingredient[data])
+        removeIngredient(data);
+});
+
+socket.on("remove sauce", data => {
+    if (db.sauce[data])
+        removeSauce(data);
+});
+
+socket.on("remove drink", data => {
+    if (db.drink[data])
+        removeDrink(data);
+});
+
+socket.on("remove dessert", data => {
+    if (db.dessert[data])
+        removeDessert(data);
 });
 
 socket.on("price", data => {

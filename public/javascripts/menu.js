@@ -72,46 +72,62 @@ function popup(ob, el) {
 
 function addDish(d) {
     db.dish[d.id] = d;
-    dish.insertAdjacentHTML("beforeend", `<li><a id="dish${d.id}">${d.name}</a></li>`);
-    let e = document.getElementById(`dish${d.id}`);
-    e.addEventListener("click", () => {
-        popup(db.dish[d.id], e);
+    dish.insertAdjacentHTML("beforeend", `<li><a id="remove-dish${d.id}">\u274C</a> <a id="dish${d.id}">${d.name}</a></li>`);
+    document.getElementById(`dish${d.id}`).addEventListener("click", ev => {
+        popup(db.dish[d.id], ev.target);
+    });
+    document.getElementById("remove-dish"+d.id).addEventListener("click", () => {
+        if (confirm("Remove "+d.name+" ?"))
+            socket.emit("remove dish", d.id);
     });
 }
 
 function addIngredient(i) {
     db.ingredient[i.id] = i;
-    ingredient.insertAdjacentHTML("beforeend", `<li><a id="ingredient${i.id}">${i.name}</a></li>`);
-    let e = document.getElementById(`ingredient${i.id}`);
-    e.addEventListener("click", () => {
-        popup(db.ingredient[i.id], e);
+    ingredient.insertAdjacentHTML("beforeend", `<li><a id="remove-ingredient${i.id}">\u274C</a> <a id="ingredient${i.id}">${i.name}</a></li>`);
+    document.getElementById(`ingredient${i.id}`).addEventListener("click", ev => {
+        popup(db.ingredient[i.id], ev.target);
+    });
+    document.getElementById("remove-ingredient"+i.id).addEventListener("click", () => {
+        if (confirm("Remove "+i.name+" ?"))
+            socket.emit("remove ingredient", i.id);
     });
 }
 
 function addSauce(s) {
     db.sauce[s.id] = s;
-    sauce.insertAdjacentHTML("beforeend", `<li><a id="sauce${s.id}">${s.name}</a></li>`);
-    let e = document.getElementById(`sauce${s.id}`);
-    e.addEventListener("click", () => {
-        popup(db.sauce[s.id], e);
+    sauce.insertAdjacentHTML("beforeend", `<li><a id="remove-sauce${s.id}">\u274C</a> <a id="sauce${s.id}">${s.name}</a></li>`);
+    document.getElementById(`sauce${s.id}`).addEventListener("click", ev => {
+        popup(db.sauce[s.id], ev.target);
+    });
+    document.getElementById("remove-sauce"+s.id).addEventListener("click", () => {
+        if (confirm("Remove "+s.name+" ?"))
+            socket.emit("remove sauce", s.id);
     });
 }
 
 function addDrink(d) {
     db.drink[d.id] = d;
-    drink.insertAdjacentHTML("beforeend", `<li><a id="drink${d.id}">${d.name}</a></li>`);
-    let e = document.getElementById(`drink${d.id}`);
-    e.addEventListener("click", () => {
-        popup(db.drink[d.id], e);
+    drink.insertAdjacentHTML("beforeend", `<li><a id="remove-drink${d.id}">\u274C</a> <a id="drink${d.id}">${d.name}</a></li>`);
+    document.getElementById(`drink${d.id}`).addEventListener("click", ev => {
+        popup(db.drink[d.id], ev.target);
+    });
+    document.getElementById("remove-drink"+d.id).addEventListener("click", () => {
+        if (confirm("Remove "+d.name+" ?"))
+            socket.emit("remove drink", d.id);
     });
 }
 
 function addDessert(d) {
     db.dessert[d.id] = d;
-    dessert.insertAdjacentHTML("beforeend", `<li><a id="dessert${d.id}">${d.name}</a></li>`);
+    dessert.insertAdjacentHTML("beforeend", `<li><a id="remove-dessert${d.id}">\u274C</a> <a id="dessert${d.id}">${d.name}</a></li>`);
     let e = document.getElementById(`dessert${d.id}`);
     e.addEventListener("click", () => {
         popup(db.dessert[d.id], e);
+    });
+    document.getElementById("remove-dessert"+d.id).addEventListener("click", () => {
+        if (confirm("Remove "+d.name+" ?"))
+            socket.emit("remove dessert", d.id);
     });
 }
 
@@ -210,6 +226,41 @@ socket.on("set dessert", data => {
         addDessert(data);
     } else {
         db.dessert[data.id] = data;
+    }
+});
+
+socket.on("remove dish", data => {
+    if (db.dish[data]) {
+        dish.querySelector("#dish" + data).parentElement.remove();
+        delete db.dish[data]
+    }
+});
+
+socket.on("remove ingredient", data => {
+    if (db.ingredient[data]) {
+        ingredient.querySelector("#ingredient" + data).parentElement.remove();
+        delete db.ingredient[data]
+    }
+});
+
+socket.on("remove sauce", data => {
+    if (db.sauce[data]) {
+        sauce.querySelector("#sauce" + data).parentElement.remove();
+        delete db.sauce[data]
+    }
+});
+
+socket.on("remove drink", data => {
+    if (db.drink[data]) {
+        drink.querySelector("#drink" + data).parentElement.remove();
+        delete db.drink[data]
+    }
+});
+
+socket.on("remove dessert", data => {
+    if (db.dessert[data]) {
+        dessert.querySelector("#dessert" + data).parentElement.remove();
+        delete db.dessert[data]
     }
 });
 
