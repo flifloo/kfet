@@ -5,6 +5,8 @@ const sauce = document.querySelector("#sauce ul");
 const drink = document.querySelector("#drink ul");
 const dessert = document.querySelector("#dessert ul");
 
+let db = {dish: {}, ingredient: {}, sauce: {}, drink: {}, dessert: {}};
+
 
 if (window.location.href.endsWith("#popup"))
     window.location.href = window.location.href.replace("#popup", "#");
@@ -69,42 +71,47 @@ function popup(ob, el) {
 }
 
 function addDish(d) {
+    db.dish[d.id] = d;
     dish.insertAdjacentHTML("beforeend", `<li><a id="dish${d.id}">${d.name}</a></li>`);
     let e = document.getElementById(`dish${d.id}`);
     e.addEventListener("click", () => {
-        popup(d, e);
+        popup(db.dish[d.id], e);
     });
 }
 
 function addIngredient(i) {
+    db.ingredient[i.id] = i;
     ingredient.insertAdjacentHTML("beforeend", `<li><a id="ingredient${i.id}">${i.name}</a></li>`);
     let e = document.getElementById(`ingredient${i.id}`);
     e.addEventListener("click", () => {
-        popup(i, e);
+        popup(db.ingredient[i.id], e);
     });
 }
 
 function addSauce(s) {
+    db.sauce[s.id] = s;
     sauce.insertAdjacentHTML("beforeend", `<li><a id="sauce${s.id}">${s.name}</a></li>`);
     let e = document.getElementById(`sauce${s.id}`);
     e.addEventListener("click", () => {
-        popup(s, e);
+        popup(db.sauce[s.id], e);
     });
 }
 
 function addDrink(d) {
+    db.drink[d.id] = d;
     drink.insertAdjacentHTML("beforeend", `<li><a id="drink${d.id}">${d.name}</a></li>`);
     let e = document.getElementById(`drink${d.id}`);
     e.addEventListener("click", () => {
-        popup(d, e);
+        popup(db.drink[d.id], e);
     });
 }
 
 function addDessert(d) {
+    db.dessert[d.id] = d;
     dessert.insertAdjacentHTML("beforeend", `<li><a id="dessert${d.id}">${d.name}</a></li>`);
     let e = document.getElementById(`dessert${d.id}`);
     e.addEventListener("click", () => {
-        popup(d, e);
+        popup(db.dessert[d.id], e);
     });
 }
 
@@ -164,6 +171,46 @@ socket.on("list dessert", data => {
     }
     for (let d of data)
         addDessert(d);
+});
+
+socket.on("set dish", data => {
+    if (data.available && db.dish[data.id] === undefined) {
+        addDish(data);
+    } else {
+        db.dish[data.id] = data;
+    }
+});
+
+socket.on("set ingredient", data => {
+    if (data.available && db.ingredient[data.id] === undefined) {
+        addIngredient(data);
+    } else {
+        db.ingredient[data.id] = data;
+    }
+});
+
+socket.on("set sauce", data => {
+    if (data.available && db.sauce[data.id] === undefined) {
+        addSauce(data);
+    } else {
+        db.sauce[data.id] = data;
+    }
+});
+
+socket.on("set drink", data => {
+    if (data.available && db.drink[data.id] === undefined) {
+        addDrink(data);
+    } else {
+        db.drink[data.id] = data;
+    }
+});
+
+socket.on("set dessert", data => {
+    if (data.available && db.dessert[data.id] === undefined) {
+        addDessert(data);
+    } else {
+        db.dessert[data.id] = data;
+    }
 });
 
 socket.on("internal error", () => {
