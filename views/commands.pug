@@ -12,19 +12,6 @@ block content
             a(href="#popup")
                 li#logout Disconnect
 
-    div#popup
-        h1 Do you really want to log out ?
-        div.container-contact2-form-btn
-            div.wrap-contact2-form-btn
-                div.contact2-form-bgbtn
-                a(href="#")
-                    button.contact2-form-btn Cancel
-        div.container-contact2-form-btn
-            div.wrap-contact2-form-btn
-                div.contact2-form-bgbtn
-                a(href="/logout")
-                    button.contact2-form-btn Logout
-
     div#main-container.bg-contact2(style="background-image: url(/images/bg-01.jpg);height: 93vh")
         form.container(action="")
             div#dish
@@ -56,4 +43,4 @@ block content
         div.list
 
     script(src="/socket.io/socket.io.js")
-    script(src="/javascripts/commands.js")
+    script(src="/javascripts/commands.js" type="module")

@@ -1,3 +1,5 @@
+import {alert} from "./popups.js";
+
 const socket = io();
 const WIP = document.getElementById("WIP");
 const done = document.getElementById("done");
@@ -81,9 +83,9 @@ socket.on("list command", data => {
     waiter();
 });
 
-socket.on("list service", data => {
+socket.on("list service", async data => {
     if (!data || Object.keys(data).length === 0) {
-        alert("No service set !");
+        await alert("No service set !");
     } else
         socket.emit("list command");
 });
@@ -122,8 +124,8 @@ socket.on("error command", data => {
     waiter();
 });
 
-socket.on("internal error", () => {
-    alert("An error occurred !");
+socket.on("internal error", async () => {
+    await alert("An error occurred !");
 })
 
 document.addEventListener("keyup", ev => {

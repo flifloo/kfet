@@ -1,26 +1,28 @@
+import {alert, prompt} from "./popups.js";
+
 let socket = io();
 let users = {};
 let usersAdd = [];
 
-function addUser(username) {
+async function addUser(username) {
     let firstName, lastName;
     do {
-        firstName = prompt("First name for " + username);
+        firstName = await prompt("First name for " + username);
     } while (firstName === "");
     if (firstName) {
         do {
-            lastName = prompt("Last name for " + username);
+            lastName = await prompt("Last name for " + username);
         } while (lastName === "");
         if (lastName)
             socket.emit("add user", {username: username, firstName: firstName, lastName: lastName});
     }
     if (!firstName|| !lastName)
-        alert("User creation aborted for " + username);
+        await alert("User creation aborted for " + username);
 }
 
-function next() {
+async function next() {
     if (usersAdd.length)
-        addUser(usersAdd.pop());
+        await addUser(usersAdd.pop());
     else
         socket.emit("set service", users);
 }
@@ -59,8 +61,8 @@ socket.on("list user", data => {
     });
 });
 
-socket.on("add user", () => {
-    next();
+socket.on("add user", async () => {
+    await next();
 });
 
 socket.on("set service", () => {
@@ -68,25 +70,25 @@ socket.on("set service", () => {
     window.close();
 });
 
-socket.on("fail add user", data => {
-    alert("User creation fail !");
+socket.on("fail add user", async data => {
+    await alert("User creation fail !");
     if (data && data.username)
-        addUser(data);
+        await addUser(data);
 });
 
-socket.on("internal error", () => {
-    alert("An error occurred !");
+socket.on("internal error", async () => {
+    await alert("An error occurred !");
 });
 
 document.querySelectorAll("input[type='text']").forEach(e => {
     e.addEventListener("keyup", ev => {hinter(ev)})
 });
 
-document.querySelector("button").addEventListener("click", () => {
+document.querySelector("button").addEventListener("click", async () => {
     document.querySelectorAll("input[type='text']").forEach(e=> {
         if (e.style.color)
             usersAdd.push(e.value);
         users[e.id] = e.value;
     });
-    next();
+    await next();
 });

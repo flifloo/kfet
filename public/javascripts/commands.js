@@ -1,3 +1,5 @@
+import {alert, prompt, confirm} from "./popups.js";
+
 const socket = io();
 const dish = document.querySelector("#dish ul");
 const ingredient = document.querySelector("#ingredient ul");
@@ -202,20 +204,20 @@ function price() {
     socket.emit("price", current);
 }
 
-function addUser() {
+async function addUser() {
     let firstName, lastName;
     do {
-        firstName = prompt("First name");
+        firstName = await prompt("First name");
     } while (firstName === "");
     if (firstName) {
         do {
-            lastName = prompt("Last name");
+            lastName = await prompt("Last name");
         } while (lastName === "");
         if (lastName)
             socket.emit("add user", {username: current.client, firstName: firstName, lastName: lastName});
     }
     if (!firstName|| !lastName) {
-        alert("User creation aborted");
+        await alert("User creation aborted");
     }
 }
 
@@ -434,21 +436,21 @@ socket.on("price", data => {
     document.querySelector("#resume h2").innerHTML = data+"€";
 })
 
-socket.on("fail add user", () => {
-    alert("User creation fail !");
-    addUser();
+socket.on("fail add user", async () => {
+    await alert("User creation fail !");
+    await addUser();
 });
 
-socket.on("internal error", () => {
-    alert("An error occurred !");
+socket.on("internal error", async () => {
+    await alert("An error occurred !");
 })
 
-document.querySelector(".validation").addEventListener("click", ev => {
+document.querySelector(".validation").addEventListener("click", async ev => {
     ev.stopPropagation();
     if (!current.dish && !current.ingredient.length && !current.sauce.length && !current.drink && !current.dessert)
-        alert("Empty command !");
+        await alert("Empty command !");
     else if (user.style.color === "red")
-        addUser();
+        await addUser();
     else
         addCommand();
 });
@@ -460,4 +462,9 @@ document.getElementById("user").addEventListener("keyup", ev => {
         return;
     socket.emit("list user", input.value);
     current.client = input.value;
+});
+
+document.getElementById("logout").addEventListener("click", async () => {
+    if (await confirm("Do you really want to log out ?"))
+        window.location.href = "logout";
 });

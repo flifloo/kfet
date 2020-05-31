@@ -1,3 +1,4 @@
+import {alert, confirm} from "./popups.js";
 const socket = io();
 const dish = document.querySelector("#dish ul");
 const ingredient = document.querySelector("#ingredient ul");
@@ -13,34 +14,36 @@ if (window.location.href.endsWith("#popup"))
 
 
 function popup(ob, el) {
-    document.querySelector("body").insertAdjacentHTML("afterbegin", `<div id="popup">
-    <h1>Edition of ${ob.name}</h1>
-    <div id="edit">
-        <div>
-            <label for="available">Available: </label>
-            <input id="available" type="checkbox">
-        </div>
-        <div>
-            <label for="price">Price: </label>
-            <input id="price" type="number" min="0" step="any" value="${ob.price}">
-        </div>
-    </div>
-    <div id="validation">
-        <div class="container-contact2-form-btn">
-            <div class="wrap-contact2-form-btn">
-                <div class="contact2-form-bgbtn"></div>
-                <a href="#" style=""><button id="cancel" class="contact2-form-btn">Cancel</button></a>
+    document.querySelector("body").insertAdjacentHTML("afterbegin", `<div id="popup-container">
+    <div id="popup">
+        <h1>Edition of ${ob.name}</h1>
+        <div id="edit">
+            <div>
+                <label for="available">Available: </label>
+                <input id="available" type="checkbox">
+            </div>
+            <div>
+                <label for="price">Price: </label>
+                <input id="price" type="number" min="0" step="any" value="${ob.price}">
             </div>
         </div>
-        <div class="container-contact2-form-btn">
-            <div class="wrap-contact2-form-btn">
-                <div class="contact2-form-bgbtn"></div>
-                <a href="#"><button id="apply" class="contact2-form-btn">Apply</button></a>
+        <div id="popup-validation">
+            <div class="container-contact2-form-btn">
+                <div class="wrap-contact2-form-btn">
+                    <div class="contact2-form-bgbtn"></div>
+                    <a href="#" style=""><button id="cancel" class="contact2-form-btn">Cancel</button></a>
+                </div>
+            </div>
+            <div class="container-contact2-form-btn">
+                <div class="wrap-contact2-form-btn">
+                    <div class="contact2-form-bgbtn"></div>
+                    <a href="#"><button id="apply" class="contact2-form-btn">Apply</button></a>
+                </div>
             </div>
         </div>
     </div>
 </div>`);
-    let e = document.getElementById("popup");
+    let e = document.getElementById("popup-container");
     if (ob.available)
         e.querySelector("#available").click()
     if (ob.maxIngredients !== undefined)
@@ -76,8 +79,8 @@ function addDish(d) {
     document.getElementById(`dish${d.id}`).addEventListener("click", ev => {
         popup(db.dish[d.id], ev.target);
     });
-    document.getElementById("remove-dish"+d.id).addEventListener("click", () => {
-        if (confirm("Remove "+d.name+" ?"))
+    document.getElementById("remove-dish"+d.id).addEventListener("click", async () => {
+        if (await confirm("Remove "+d.name+" ?"))
             socket.emit("remove dish", d.id);
     });
 }
@@ -88,8 +91,8 @@ function addIngredient(i) {
     document.getElementById(`ingredient${i.id}`).addEventListener("click", ev => {
         popup(db.ingredient[i.id], ev.target);
     });
-    document.getElementById("remove-ingredient"+i.id).addEventListener("click", () => {
-        if (confirm("Remove "+i.name+" ?"))
+    document.getElementById("remove-ingredient"+i.id).addEventListener("click", async () => {
+        if (await confirm("Remove "+i.name+" ?"))
             socket.emit("remove ingredient", i.id);
     });
 }
@@ -100,8 +103,8 @@ function addSauce(s) {
     document.getElementById(`sauce${s.id}`).addEventListener("click", ev => {
         popup(db.sauce[s.id], ev.target);
     });
-    document.getElementById("remove-sauce"+s.id).addEventListener("click", () => {
-        if (confirm("Remove "+s.name+" ?"))
+    document.getElementById("remove-sauce"+s.id).addEventListener("click", async () => {
+        if (await confirm("Remove "+s.name+" ?"))
             socket.emit("remove sauce", s.id);
     });
 }
@@ -112,8 +115,8 @@ function addDrink(d) {
     document.getElementById(`drink${d.id}`).addEventListener("click", ev => {
         popup(db.drink[d.id], ev.target);
     });
-    document.getElementById("remove-drink"+d.id).addEventListener("click", () => {
-        if (confirm("Remove "+d.name+" ?"))
+    document.getElementById("remove-drink"+d.id).addEventListener("click", async () => {
+        if (await confirm("Remove "+d.name+" ?"))
             socket.emit("remove drink", d.id);
     });
 }
@@ -125,8 +128,8 @@ function addDessert(d) {
     e.addEventListener("click", () => {
         popup(db.dessert[d.id], e);
     });
-    document.getElementById("remove-dessert"+d.id).addEventListener("click", () => {
-        if (confirm("Remove "+d.name+" ?"))
+    document.getElementById("remove-dessert"+d.id).addEventListener("click", async () => {
+        if (await confirm("Remove "+d.name+" ?"))
             socket.emit("remove dessert", d.id);
     });
 }
@@ -264,6 +267,6 @@ socket.on("remove dessert", data => {
     }
 });
 
-socket.on("internal error", () => {
-    alert("An error occurred !");
-})
+socket.on("internal error", async () => {
+    await alert("An error occurred !");
+});
