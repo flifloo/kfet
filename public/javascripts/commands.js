@@ -6,7 +6,7 @@ const drink = document.querySelector("#drink ul");
 const dessert = document.querySelector("#dessert ul");
 const list = document.querySelector(".list");
 
-let current = {dish: null, ingredient: [], sauce: [], drink: null, dessert: null, price: {}};
+let current = {dish: null, ingredient: [], sauce: [], drink: null, dessert: null};
 let radios = {dish: null, drink: null, dessert: null};
 let db = {dish: {}, ingredient: {}, sauce: {}, drink: {}, dessert: {}};
 
@@ -56,6 +56,7 @@ function addCmd(command) {
 }
 
 function addDish(d) {
+    db.dish[d.id] = d;
     dish.insertAdjacentHTML("beforeend", `<li><input type="radio" name="dish" id="dish${d.id}"><label for="dish${d.id}">${d.name}</label></li>`);
     let e = document.querySelector(`input[id=dish${d.id}]`);
     e.addEventListener("click", () => {
@@ -71,6 +72,7 @@ function addDish(d) {
 }
 
 function addIngredient(i) {
+    db.ingredient[i.id] = i;
     ingredient.insertAdjacentHTML("beforeend", `<li><input type="checkbox" disabled=true name="ingredient" id="ingredient${i.id}"><label for="ingredient${i.id}">${i.name}</label></li>`);
     let e = document.querySelector(`input[id=ingredient${i.id}]`);
     e.addEventListener("click", () => {
@@ -79,6 +81,7 @@ function addIngredient(i) {
 }
 
 function addSauce(s) {
+    db.sauce[s.id] = s;
     sauce.insertAdjacentHTML("beforeend", `<li><input type="checkbox" disabled=true name="sauce" id="sauce${s.id}"><label for="sauce${s.id}">${s.name}</label></li>`);
     let e = document.querySelector(`input[id=sauce${s.id}]`);
     e.addEventListener("click", () => {
@@ -87,6 +90,7 @@ function addSauce(s) {
 }
 
 function addDrink(d) {
+    db.drink[d.id] = d;
     drink.insertAdjacentHTML("beforeend", `<li><input type="radio" name="drink" id="drink${d.id}"><label for="drink${d.id}">${d.name}</label></li>`);
     let e = document.querySelector(`input[id=drink${d.id}]`);
     e.addEventListener("click", () => {
@@ -95,6 +99,7 @@ function addDrink(d) {
 }
 
 function addDessert(d) {
+    db.dessert[d.id] = d;
     dessert.insertAdjacentHTML("beforeend", `<li><input type="radio" name="dessert" id="dessert${d.id}"><label for="dessert${d.id}">${d.name}</label></li>`);
     let e = document.querySelector(`input[id=dessert${d.id}]`);
     e.addEventListener("click", () => {
@@ -116,10 +121,6 @@ function radioCheck (e) {
             name = document.querySelector(`label[for=${e.id}]`).innerHTML;
         }
         current[e.name] = curr;
-        if (curr)
-            current.price[e.name] = db[e.name][curr.replace(e.name, "")].price;
-        else
-            current.price[e.name] = 0;
         price();
         document.getElementById("p-"+e.name).innerHTML = name;
     }
@@ -134,10 +135,6 @@ function checkCheck(e) {
         if (!e.checked)
             e.disabled = current[e.name].length === db.dish[current.dish]["max"+e.name.charAt(0).toUpperCase() + e.name.slice(1)+"s"];
     });
-    current.price[e.name] = 0;
-    for (let i of current[e.name]) {
-        current.price[e.name] += db[e.name][i].price
-    }
     price();
     let names = [];
     current[e.name].forEach(el=>names.push(document.querySelector(`label[for=${e.name}${el}]`).innerHTML));
@@ -237,9 +234,8 @@ socket.on("list command", data => {
         list.removeChild(child);
         child = list.lastElementChild;
     }
-    for (let c of data) {
+    for (let c of data)
         addCmd(c);
-    }
 });
 
 socket.on("list dish", data => {
@@ -248,10 +244,9 @@ socket.on("list dish", data => {
         dish.removeChild(child);
         child = dish.lastElementChild;
     }
-    for (let d of data) {
-        addDish(d);
-        db.dish[d.id] = d;
-    }
+    for (let d of data)
+        if (d.available)
+            addDish(d);
 });
 
 socket.on("list ingredient", data => {
@@ -260,10 +255,9 @@ socket.on("list ingredient", data => {
         ingredient.removeChild(child);
         child = ingredient.lastElementChild;
     }
-    for (let i of data) {
-        addIngredient(i);
-        db.ingredient[i.id] = i;
-    }
+    for (let i of data)
+        if (i.available)
+            addIngredient(i);
 });
 
 socket.on("list sauce", data => {
@@ -272,10 +266,9 @@ socket.on("list sauce", data => {
         sauce.removeChild(child);
         child = sauce.lastElementChild;
     }
-    for (let s of data) {
-        addSauce(s);
-        db.sauce[s.id] = s;
-    }
+    for (let s of data)
+        if (s.available)
+            addSauce(s);
 });
 
 socket.on("list drink", data => {
@@ -284,10 +277,9 @@ socket.on("list drink", data => {
         drink.removeChild(child);
         child = drink.lastElementChild;
     }
-    for (let d of data) {
-        addDrink(d);
-        db.drink[d.id] = d;
-    }
+    for (let d of data)
+        if (d.available)
+            addDrink(d);
 });
 
 socket.on("list dessert", data => {
@@ -296,10 +288,9 @@ socket.on("list dessert", data => {
         dessert.removeChild(child);
         child = dessert.lastElementChild;
     }
-    for (let d of data) {
-        addDessert(d);
-        db.dessert[d.id] = d;
-    }
+    for (let d of data)
+        if (d.available)
+            addDessert(d);
 });
 
 socket.on("list user", data => {
@@ -342,6 +333,61 @@ socket.on("error command", data => {
 socket.on("add user", data => {
     if (data === current.client)
         addCommand();
+});
+
+socket.on("set dish", data => {
+    if (data.available && db.dish[data.id] === undefined) {
+        addDish(data);
+    } else if (!data.available && db.dish[data.id] !== undefined) {
+        dish.querySelector("#dish" + data.id).parentElement.remove();
+        delete db.dish[data.id];
+    } else {
+        db.dish[data.id] = data;
+    }
+});
+
+socket.on("set ingredient", data => {
+    if (data.available && db.ingredient[data.id] === undefined) {
+        addIngredient(data);
+    } else if (!data.available && db.ingredient[data.id] !== undefined) {
+        ingredient.querySelector("#ingredient" + data.id).parentElement.remove();
+        delete db.ingredient[data.id];
+    } else {
+        db.ingredient[data.id] = data;
+    }
+});
+
+socket.on("set sauce", data => {
+    if (data.available && db.sauce[data.id] === undefined) {
+        addSauce(data);
+    } else if (!data.available && db.sauce[data.id] !== undefined) {
+        sauce.querySelector("#sauce" + data.id).parentElement.remove();
+        delete db.sauce[data.id];
+    } else {
+        db.sauce[data.id] = data;
+    }
+});
+
+socket.on("set drink", data => {
+    if (data.available && db.drink[data.id] === undefined) {
+        addDrink(data);
+    } else if (!data.available && db.drink[data.id] !== undefined) {
+        drink.querySelector("#drink" + data.id).parentElement.remove();
+        delete db.drink[data.id];
+    } else {
+        db.drink[data.id] = data;
+    }
+});
+
+socket.on("set dessert", data => {
+    if (data.available && db.dessert[data.id] === undefined) {
+        addDessert(data);
+    } else if (!data.available && db.dessert[data.id] !== undefined) {
+        dessert.querySelector("#dessert" + data.id).parentElement.remove();
+        delete db.dessert[data.id];
+    } else {
+        db.dessert[data.id] = data;
+    }
 });
 
 socket.on("price", data => {
