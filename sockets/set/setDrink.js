@@ -1,5 +1,5 @@
-const models = require("../models");
-const utils = require("./utils");
+const models = require("../../models");
+const utils = require("../utils");
 
 module.exports = socket => {
     return async (data) => {
