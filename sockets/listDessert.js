@@ -1,16 +1,13 @@
 const models = require("../models");
+const utils = require("./utils");
 
 module.exports = socket => {
     return async () => {
         let desserts = []
-        for (let i of await models.Dessert.findAll({
+        for (let d of await models.Dessert.findAll({
             order: ["name"]
         })) {
-            desserts.push({
-                id: i.id,
-                name: i.name,
-                price: i.price
-            });
+            desserts.push(utils.dessertExport(d));
         }
         socket.emit("list dessert", desserts);
     }

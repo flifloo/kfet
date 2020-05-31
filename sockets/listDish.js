@@ -1,4 +1,5 @@
 const models = require("../models");
+const utils = require("./utils");
 
 module.exports = socket => {
     return async () => {
@@ -6,13 +7,7 @@ module.exports = socket => {
         for (let d of await models.Dish.findAll({
             order: ["name"]
         })) {
-            dishes.push({
-                id: d.id,
-                name: d.name,
-                price: d.price,
-                maxIngredients: d.maxIngredients,
-                maxSauces: d.maxSauces
-            });
+            dishes.push(utils.dishExport(d));
         }
         socket.emit("list dish", dishes);
     }

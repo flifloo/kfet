@@ -1,0 +1,23 @@
+extends layout
+
+block content
+    div#main-container.bg-contact2(style="background-image: url(/images/bg-01.jpg);")
+        form#stocks.container(action="")
+            div#dish
+                h1 Dishes
+                ul
+            div#ingredient
+                h1 Ingredients
+                ul
+            div#sauce
+                h1 Sauces
+                ul
+            div#drink
+                h1 Drinks
+                ul
+            div#dessert
+                h1 Desserts
+                ul
+
+    script(src="/socket.io/socket.io.js")
+    script(src="/javascripts/menu.js")

@@ -661,6 +661,10 @@ audio{
   opacity: 0.2;
 }
 
+#popup h1 {
+  text-align: center;
+}
+
 #WIP{
   display: flex;
   flex-wrap : wrap;
@@ -830,4 +834,21 @@ div#teams{
 
 #okteam button{
   font-size: 30px;
+}
+
+#edit {
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+  justify-content: space-between;
+}
+
+#edit div {
+  margin-bottom: 0.5em;
+  text-align: center;
+}
+
+#validation {
+  display: flex;
+  flex-direction: row;
 }

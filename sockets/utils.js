@@ -17,6 +17,65 @@ function commandExport (c) {
     }
 }
 
+function dishExport(d) {
+    return {
+        id: d.id,
+        name: d.name,
+        available: d.available,
+        price: d.price,
+        maxIngredients: d.maxIngredients,
+        maxSauces: d.maxSauces
+    }
+}
+
+function ingredientExport(i) {
+    return {
+        id: i.id,
+        name: i.name,
+        available: i.available,
+        price: i.price
+    }
+}
+
+function sauceExport(s) {
+    return {
+        id: s.id,
+        name: s.name,
+        available: s.available,
+        price: s.price
+    }
+}
+
+function drinkExport(d) {
+    return {
+        id: d.id,
+        name: d.name,
+        available: d.available,
+        price: d.price
+    }
+}
+
+function dessertExport(d) {
+    return {
+        id: d.id,
+        name: d.name,
+        available: d.available,
+        price: d.price
+    }
+}
+
+async function update(s, v) {
+    let edit = false;
+    for (let a in v)
+        if (s[a] !== v[a]) {
+            s[a] = v[a];
+            edit = true;
+        }
+    if (edit)
+        await s.save();
+    return edit;
+}
+
 async function resetService(c) {
     let service = await models.Service.findOne({where:{date:{[models.Sequelize.Op.eq]: new Date()}}, include: ["sandwich1", "sandwich2", "sandwich3"]});
     if (c.WIP && service) {
@@ -51,5 +110,11 @@ async function price(data) {
 }
 
 module.exports.commandExport = commandExport;
+module.exports.dishExport = dishExport;
+module.exports.ingredientExport = ingredientExport;
+module.exports.sauceExport = sauceExport;
+module.exports.drinkExport = drinkExport;
+module.exports.dessertExport = dessertExport;
 module.exports.resetService = resetService;
+module.exports.update = update;
 module.exports.price = price;

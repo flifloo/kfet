@@ -7,12 +7,13 @@ const logger = require("morgan");
 const config = require("./config/config.json");
 
 const indexRouter = require("./routes/index");
-const loginRouter = require("./routes/login")
-const logoutRouter = require("./routes/logout")
-const commandsRouter = require("./routes/commands")
-const kitchenRouter = require("./routes/kitchen")
-const serviceRouter = require("./routes/service")
-const stocksRouter = require("./routes/stocks")
+const loginRouter = require("./routes/login");
+const logoutRouter = require("./routes/logout");
+const commandsRouter = require("./routes/commands");
+const kitchenRouter = require("./routes/kitchen");
+const menuRouter = require("./routes/menu");
+const serviceRouter = require("./routes/service");
+const stocksRouter = require("./routes/stocks");
 
 const app = express();
 const sess = {
@@ -49,6 +50,7 @@ app.use("/login", loginRouter);
 app.use("/logout", logoutRouter);
 app.use("/commands", commandsRouter);
 app.use("/kitchen", kitchenRouter);
+app.use("/menu", menuRouter);
 app.use("/stocks", stocksRouter);
 app.use("/service", serviceRouter);
 

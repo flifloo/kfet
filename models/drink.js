@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       defaultValue: 0,
       allowNull: false
+    },
+    available: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false
     }
   }, {
     tableName: "Drinks"
