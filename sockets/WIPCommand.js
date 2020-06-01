@@ -12,22 +12,22 @@ module.exports = socket => {
                 throw new Error("Service not found");
 
             for (let sn of ["sandwich1", "sandwich2", "sandwich3"]) {
-                console.log(sn +  " " + s[sn + "Busy"])
-                if (!s[sn + "Busy"]) {
-                    s[sn + "Busy"] = true;
-                    sandwich = s[sn];
+                await s.reload();
+                if (!c.WIP && s[sn] && !s[sn + "Busy"]) {
+                    sandwich = sn;
                     break;
                 }
             }
 
             if (sandwich) {
+                s[sandwich + "Busy"] = true;
+                await c.setSandwich(s[sandwich]);
                 c.WIP = true;
-                await c.setSandwich(sandwich);
-                await c.save();
                 await s.save();
+                await c.save();
                 let send = {
                     number: data,
-                    sandwich: sandwich.username
+                    sandwich: s[sandwich].username
                 }
                 socket.emit("WIP command", send);
                 socket.broadcast.emit("WIP command", send);

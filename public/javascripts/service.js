@@ -20,7 +20,6 @@ async function next() {
         await addUser(usersAdd.pop());
     else
         socket.emit("set service", users);
-    console.log(users)
 }
 
 function hinter(ev) {

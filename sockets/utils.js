@@ -80,7 +80,7 @@ async function resetService(c) {
     let service = await models.Service.findOne({where:{date:{[models.Sequelize.Op.eq]: new Date()}}, include: ["sandwich1", "sandwich2", "sandwich3"]});
     if (c.WIP && service) {
         for (let sn of ["sandwich1", "sandwich2", "sandwich3"]) {
-            if (service[sn].username === c.sandwichUsername) {
+            if (service[sn] && service[sn].username === c.sandwichUsername) {
                 service[sn + "Busy"] = false;
                 await service.save();
                 break;

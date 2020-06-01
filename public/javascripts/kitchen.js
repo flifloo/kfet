@@ -5,6 +5,9 @@ const WIP = document.getElementById("WIP");
 const done = document.getElementById("done");
 const waiting = document.getElementById("waiting");
 
+let service = {};
+
+
 function addCmd(c) {
     done.insertAdjacentHTML("beforeend", `<div id=cmd${c.number}>
     <h1>${c.number}</h1>
@@ -54,14 +57,14 @@ function wait(e) {
 }
 
 function waiter() {
-    if (WIP.children.length < 3) {
+    let limit = Object.keys(service).filter(x=>x.startsWith("sandwich") && service[x]).length;
+    if (WIP.children.length < limit) {
         let i;
-        if (waiting.children.length < 3 - WIP.children.length)
+        if (waiting.children.length < limit - WIP.children.length)
             i = waiting.children.length;
         else
-            i = 3 - WIP.children.length;
-        for (i-=1; i >= 0; i--)
-            socket.emit("WIP command", waiting.children[i].querySelector("h1").innerHTML);
+            i = limit - WIP.children.length;
+        socket.emit("WIP command", waiting.children[i-1].querySelector("h1").innerHTML);
     }
 }
 
@@ -84,10 +87,12 @@ socket.on("list command", data => {
 });
 
 socket.on("list service", async data => {
-    if (!data || Object.keys(data).length === 0) {
+    if (!data || Object.keys(data).length === 0)
         await alert("No service set !");
-    } else
+    else {
+        service = data;
         socket.emit("list command");
+    }
 });
 
 socket.on("set service", () => {

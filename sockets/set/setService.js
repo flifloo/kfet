@@ -7,9 +7,13 @@ module.exports = socket => {
             if (!s)
                 s = await models.Service.create();
 
-            for (let u in data)
-                await s["set"+u.charAt(0).toUpperCase()+u.slice(1)](data[u]);
+            for (let u in data) {
+                if (!(s[u] && s[u].username === data[u]) || !data[u])
+                    s[u + "Busy"] = false;
+                await s["set" + u.charAt(0).toUpperCase() + u.slice(1)](data[u]);
+            }
 
+            await s.save();
             socket.emit("set service", data);
             socket.broadcast.emit("set service", data);
         } catch (e) {
