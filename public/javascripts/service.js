@@ -1,4 +1,4 @@
-import {alert, prompt} from "./popups.js";
+import {alert, createUserPopup} from "./popups.js";
 
 let socket = io();
 let users = {};
@@ -7,16 +7,11 @@ let usersAdd = [];
 async function addUser(username) {
     let firstName, lastName;
     do {
-        firstName = await prompt("First name for " + username);
-    } while (firstName === "");
-    if (firstName) {
-        do {
-            lastName = await prompt("Last name for " + username);
-        } while (lastName === "");
-        if (lastName)
-            socket.emit("add user", {username: username, firstName: firstName, lastName: lastName});
-    }
-    if (!firstName|| !lastName)
+        [firstName, lastName] = await createUserPopup(username);
+    } while (firstName === "" || lastName === "");
+    if (firstName && lastName)
+        socket.emit("add user", {username: username, firstName: firstName, lastName: lastName});
+    else
         await alert("User creation aborted for " + username);
 }
 
@@ -25,6 +20,7 @@ async function next() {
         await addUser(usersAdd.pop());
     else
         socket.emit("set service", users);
+    console.log(users)
 }
 
 function hinter(ev) {
@@ -40,9 +36,8 @@ socket.on("connected", () => {
 });
 
 socket.on("list service", data => {
-    for (let s in data) {
-        document.getElementById(s).value = data[s]
-    }
+    for (let s in data)
+        document.getElementById(s).value = data[s];
 });
 
 socket.on("list user", data => {
@@ -66,7 +61,6 @@ socket.on("add user", async () => {
 });
 
 socket.on("set service", () => {
-    console.log("close !")
     window.close();
 });
 
@@ -86,7 +80,7 @@ document.querySelectorAll("input[type='text']").forEach(e => {
 
 document.querySelector("button").addEventListener("click", async () => {
     document.querySelectorAll("input[type='text']").forEach(e=> {
-        if (e.style.color)
+        if (e.value && e.style.color)
             usersAdd.push(e.value);
         users[e.id] = e.value;
     });

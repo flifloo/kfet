@@ -1,4 +1,4 @@
-import {alert, prompt, confirm} from "./popups.js";
+import {alert, confirm, createUserPopup} from "./popups.js";
 
 const socket = io();
 const list = document.querySelector(".list");
@@ -157,18 +157,12 @@ function price() {
 async function addUser() {
     let firstName, lastName;
     do {
-        firstName = await prompt("First name");
-    } while (firstName === "");
-    if (firstName) {
-        do {
-            lastName = await prompt("Last name");
-        } while (lastName === "");
-        if (lastName)
-            socket.emit("add user", {username: current.client, firstName: firstName, lastName: lastName});
-    }
-    if (!firstName|| !lastName) {
+        [firstName, lastName] = await createUserPopup(current.client);
+    } while (firstName === "" || lastName === "");
+    if (firstName && lastName)
+        socket.emit("add user", {username: current.client, firstName: firstName, lastName: lastName});
+    else
         await alert("User creation aborted");
-    }
 }
 
 function addCommand() {
@@ -304,7 +298,7 @@ document.querySelector(".validation").addEventListener("click", async ev => {
     ev.stopPropagation();
     if (!current.dish && !current.ingredient.length && !current.sauce.length && !current.drink && !current.dessert)
         await alert("Empty command !");
-    else if (user.style.color === "red")
+    else if (current.client && user.style.color === "red")
         await addUser();
     else
         addCommand();
