@@ -1,19 +1,11 @@
 import {alert, confirm} from "./popups.js";
+
 const socket = io();
-const dish = document.querySelector("#dish ul");
-const ingredient = document.querySelector("#ingredient ul");
-const sauce = document.querySelector("#sauce ul");
-const drink = document.querySelector("#drink ul");
-const dessert = document.querySelector("#dessert ul");
 
 let db = {dish: {}, ingredient: {}, sauce: {}, drink: {}, dessert: {}};
 
 
-if (window.location.href.endsWith("#popup"))
-    window.location.href = window.location.href.replace("#popup", "#");
-
-
-function popup(ob, el) {
+function editPopup(ob, el) {
     document.querySelector("body").insertAdjacentHTML("afterbegin", `<div id="popup-container">
     <div id="popup">
         <h1>Edition of ${ob.name}</h1>
@@ -64,208 +56,114 @@ function popup(ob, el) {
         });
         e.remove();
     });
-
-    if (window.location.href.endsWith("#"))
-        window.location.href = window.location.href + "popup";
-    else if (!window.location.href.endsWith("#popup"))
-        window.location.href = window.location.href + "#popup";
-    else
-        window.location.href = window.location.href.replace("#popup", "#");
 }
 
-function addDish(d) {
-    db.dish[d.id] = d;
-    dish.insertAdjacentHTML("beforeend", `<li><a id="remove-dish${d.id}">\u274C</a> <a id="dish${d.id}">${d.name}</a></li>`);
-    document.getElementById(`dish${d.id}`).addEventListener("click", ev => {
-        popup(db.dish[d.id], ev.target);
-    });
-    document.getElementById("remove-dish"+d.id).addEventListener("click", async () => {
-        if (await confirm("Remove "+d.name+" ?"))
-            socket.emit("remove dish", d.id);
-    });
-}
+async function createPopup(type) {
+    document.querySelector("body").insertAdjacentHTML("afterbegin", `<div id="popup-container">
+    <div id="popup">
+        <h1>Create ${type}</h1>
+        <div id="edit">
+            <div>
+                <label for="name">Name: </label>
+                <input class="input2" id="name" type="text">
+            </div>
+            <div>
+                <label for="available">Available: </label>
+                <input id="available" type="checkbox" checked>
+            </div>
+            <div>
+                <label for="price">Price: </label>
+                <input id="price" type="number" min="0" step="any">
+            </div>
+        </div>
+        <div id="popup-validation">
+            <div class="container-contact2-form-btn">
+                <div class="wrap-contact2-form-btn">
+                    <div class="contact2-form-bgbtn"></div>
+                    <a href="#" style=""><button id="cancel" class="contact2-form-btn">Cancel</button></a>
+                </div>
+            </div>
+            <div class="container-contact2-form-btn">
+                <div class="wrap-contact2-form-btn">
+                    <div class="contact2-form-bgbtn"></div>
+                    <a href="#"><button id="apply" class="contact2-form-btn">Apply</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`);
+    let e = document.getElementById("popup-container");
+    if (type === "dish") {
+        e.querySelector("#edit div:last-of-type").insertAdjacentHTML("afterend", `<div><label for="maxIngredients">Max ingredients: </label><input id="maxIngredients" type="number" min="0""></div>`);
+        e.querySelector("#edit div:last-of-type").insertAdjacentHTML("afterend", `<div><label for="maxSauces">Max sauces: </label><input id="maxSauces" type="number" min="0"></div>`);
+    }
 
-function addIngredient(i) {
-    db.ingredient[i.id] = i;
-    ingredient.insertAdjacentHTML("beforeend", `<li><a id="remove-ingredient${i.id}">\u274C</a> <a id="ingredient${i.id}">${i.name}</a></li>`);
-    document.getElementById(`ingredient${i.id}`).addEventListener("click", ev => {
-        popup(db.ingredient[i.id], ev.target);
+    e.querySelector("#cancel").addEventListener("click", () => {
+        e.remove();
     });
-    document.getElementById("remove-ingredient"+i.id).addEventListener("click", async () => {
-        if (await confirm("Remove "+i.name+" ?"))
-            socket.emit("remove ingredient", i.id);
-    });
-}
-
-function addSauce(s) {
-    db.sauce[s.id] = s;
-    sauce.insertAdjacentHTML("beforeend", `<li><a id="remove-sauce${s.id}">\u274C</a> <a id="sauce${s.id}">${s.name}</a></li>`);
-    document.getElementById(`sauce${s.id}`).addEventListener("click", ev => {
-        popup(db.sauce[s.id], ev.target);
-    });
-    document.getElementById("remove-sauce"+s.id).addEventListener("click", async () => {
-        if (await confirm("Remove "+s.name+" ?"))
-            socket.emit("remove sauce", s.id);
-    });
-}
-
-function addDrink(d) {
-    db.drink[d.id] = d;
-    drink.insertAdjacentHTML("beforeend", `<li><a id="remove-drink${d.id}">\u274C</a> <a id="drink${d.id}">${d.name}</a></li>`);
-    document.getElementById(`drink${d.id}`).addEventListener("click", ev => {
-        popup(db.drink[d.id], ev.target);
-    });
-    document.getElementById("remove-drink"+d.id).addEventListener("click", async () => {
-        if (await confirm("Remove "+d.name+" ?"))
-            socket.emit("remove drink", d.id);
-    });
-}
-
-function addDessert(d) {
-    db.dessert[d.id] = d;
-    dessert.insertAdjacentHTML("beforeend", `<li><a id="remove-dessert${d.id}">\u274C</a> <a id="dessert${d.id}">${d.name}</a></li>`);
-    let e = document.getElementById(`dessert${d.id}`);
-    e.addEventListener("click", () => {
-        popup(db.dessert[d.id], e);
-    });
-    document.getElementById("remove-dessert"+d.id).addEventListener("click", async () => {
-        if (await confirm("Remove "+d.name+" ?"))
-            socket.emit("remove dessert", d.id);
+    e.querySelector("#apply").addEventListener("click", () => {
+        socket.emit("add " + type, {
+            name: e.querySelector("#name").value,
+            available: e.querySelector("#available").checked,
+            price: parseFloat(e.querySelector("#price").value),
+            maxIngredients: type !== "dish" ? undefined : parseInt(e.querySelector("#maxIngredients").value),
+            maxSauces: type !== "dish" ? undefined : parseInt(e.querySelector("#maxSauces").value),
+        });
+        e.remove();
     });
 }
 
 socket.on("connected", () => {
-    socket.emit("list dish");
-    socket.emit("list ingredient");
-    socket.emit("list sauce");
-    socket.emit("list drink");
-    socket.emit("list dessert");
+    for (let i of ["dish", "ingredient", "sauce", "drink", "dessert"])
+        socket.emit("list " + i);
 });
 
-socket.on("list dish", data => {
-    let child = dish.lastElementChild;
-    while (child) {
-        dish.removeChild(child);
-        child = dish.lastElementChild;
+for (let i of ["dish", "ingredient", "sauce", "drink", "dessert"]) {
+    let el = document.querySelector(`#${i} ul`);
+    function add(e) {
+        db[i][e.id] = e;
+        el.insertAdjacentHTML("beforeend", `<li><a id="remove-${i}${e.id}">\u274C</a> <a id="${i}${e.id}">${e.name}</a></li>`);
+        document.getElementById(`${i}${e.id}`).addEventListener("click", ev => {
+            editPopup(db[i][e.id], ev.target);
+        });
+        document.getElementById(`remove-${i}${e.id}`).addEventListener("click", async () => {
+            if (await confirm("Remove "+e.name+" ?"))
+                socket.emit("remove " + i, e.id);
+        });
     }
-    for (let d of data)
-        addDish(d);
-});
-
-socket.on("list ingredient", data => {
-    let child = ingredient.lastElementChild;
-    while (child) {
-        ingredient.removeChild(child);
-        child = ingredient.lastElementChild;
-    }
-    for (let i of data)
-        addIngredient(i);
-});
-
-socket.on("list sauce", data => {
-    let child = sauce.lastElementChild;
-    while (child) {
-        sauce.removeChild(child);
-        child = sauce.lastElementChild;
-    }
-    for (let s of data)
-        addSauce(s);
-});
-
-socket.on("list drink", data => {
-    let child = drink.lastElementChild;
-    while (child) {
-        drink.removeChild(child);
-        child = drink.lastElementChild;
-    }
-    for (let d of data)
-        addDrink(d);
-});
-
-socket.on("list dessert", data => {
-    let child = dessert.lastElementChild;
-    while (child) {
-        dessert.removeChild(child);
-        child = dessert.lastElementChild;
-    }
-    for (let d of data)
-        addDessert(d);
-});
-
-socket.on("set dish", data => {
-    if (data.available && db.dish[data.id] === undefined) {
-        addDish(data);
-    } else {
-        db.dish[data.id] = data;
-    }
-});
-
-socket.on("set ingredient", data => {
-    if (data.available && db.ingredient[data.id] === undefined) {
-        addIngredient(data);
-    } else {
-        db.ingredient[data.id] = data;
-    }
-});
-
-socket.on("set sauce", data => {
-    if (data.available && db.sauce[data.id] === undefined) {
-        addSauce(data);
-    } else {
-        db.sauce[data.id] = data;
-    }
-});
-
-socket.on("set drink", data => {
-    if (data.available && db.drink[data.id] === undefined) {
-        addDrink(data);
-    } else {
-        db.drink[data.id] = data;
-    }
-});
-
-socket.on("set dessert", data => {
-    if (data.available && db.dessert[data.id] === undefined) {
-        addDessert(data);
-    } else {
-        db.dessert[data.id] = data;
-    }
-});
-
-socket.on("remove dish", data => {
-    if (db.dish[data]) {
-        dish.querySelector("#dish" + data).parentElement.remove();
-        delete db.dish[data]
-    }
-});
-
-socket.on("remove ingredient", data => {
-    if (db.ingredient[data]) {
-        ingredient.querySelector("#ingredient" + data).parentElement.remove();
-        delete db.ingredient[data]
-    }
-});
-
-socket.on("remove sauce", data => {
-    if (db.sauce[data]) {
-        sauce.querySelector("#sauce" + data).parentElement.remove();
-        delete db.sauce[data]
-    }
-});
-
-socket.on("remove drink", data => {
-    if (db.drink[data]) {
-        drink.querySelector("#drink" + data).parentElement.remove();
-        delete db.drink[data]
-    }
-});
-
-socket.on("remove dessert", data => {
-    if (db.dessert[data]) {
-        dessert.querySelector("#dessert" + data).parentElement.remove();
-        delete db.dessert[data]
-    }
-});
+    socket.on("list " + i, data => {
+        let child = el.lastElementChild;
+        while (child) {
+            el.removeChild(child);
+            child = el.lastElementChild;
+        }
+        for (let d of data)
+            add(d);
+    });
+    socket.on("add " + i, data => {
+        if (data.available)
+            add(data);
+    });
+    document.getElementById("add-" + i).addEventListener("click", async () => {
+        await createPopup(i);
+    });
+    socket.on("fail add "+i, async data => {
+        await alert("Fail to add " + i + " " + data.name)
+    });
+    socket.on("set " + i, data => {
+        if (data.available && db[i][data.id] === undefined) {
+            add(data);
+        } else {
+            db[i][data.id] = data;
+        }
+    });
+    socket.on("remove " + i, data => {
+        if (db[i][data]) {
+            el.querySelector("#" + i + data).parentElement.remove();
+            delete db[i][data]
+        }
+    });
+}
 
 socket.on("internal error", async () => {
     await alert("An error occurred !");
